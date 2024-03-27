@@ -15,11 +15,12 @@ void drawPearLogo();
 void drawHomeScreen();
 void drawRecordScreen();
 void drawFileScreen();
-void drawRandomCycleScreen(int gesture_repetition, int sample_repetition, boolean isGesture);
-void gestureRepetitionDisplay(int gesture_repetition);
-void sampleRepetitionDisplay(int sample_repetition);
+void drawRandomCycleScreen(int _gesture_repetition, int _sample_repetition, boolean _isGesture);
+void gestureRepetitionDisplay(int _gesture_repetition);
+void sampleRepetitionDisplay(int _sample_repetition);
 void doGestureDisplay(const String& gesture);
 void countDownDisplay(int countDown);
 void drawGestureListScreen(const String& gesture);
+void interfaceGestion(); // Manage the interface
 
 #endif //EIT_PROJECT_DRAWS_H

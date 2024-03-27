@@ -3,7 +3,6 @@
 //
 
 #include "EIT_Impedance_measurement/EIT_Impedance_measurement.h"
-struct tm timeinfo; // Define timeinfo
 /**
  * @brief Initializes the tabImpedance matrix with zeros.
  */
@@ -20,7 +19,7 @@ void initTabImpedance() {
 /**
  * @brief Computes the impedance values for each electrode pair and updates the tabImpedance matrix.
  */
-void computeTabImpedance(MCP23008 MCP, AD5933 ad5933, double gain[]) {
+void computeTabImpedance(MCP23008 _MCP, AD5933 _ad5933, double _gain[]) {
     // Select electrodes and measure impedance
     for (int iRow = 0; iRow < 8; iRow++) {
         String rowStr = String(iRow) + ": ";
@@ -30,16 +29,16 @@ void computeTabImpedance(MCP23008 MCP, AD5933 ad5933, double gain[]) {
                 continue;
             }
             // Configure GP0, GP1, GP2 pins to select iRow
-            MCP.digitalWrite(0, (iRow & 0x01) ? HIGH : LOW);
-            MCP.digitalWrite(1, (iRow & 0x02) ? HIGH : LOW);
-            MCP.digitalWrite(2, (iRow & 0x04) ? HIGH : LOW);
+            _MCP.digitalWrite(0, (iRow & 0x01) ? HIGH : LOW);
+            _MCP.digitalWrite(1, (iRow & 0x02) ? HIGH : LOW);
+            _MCP.digitalWrite(2, (iRow & 0x04) ? HIGH : LOW);
 
             // Configure GP3, GP4, GP5 pins to select iColumn
-            MCP.digitalWrite(3, (iColumn & 0x01) ? HIGH : LOW);
-            MCP.digitalWrite(4, (iColumn & 0x02) ? HIGH : LOW);
-            MCP.digitalWrite(5, (iColumn & 0x04) ? HIGH : LOW);
+            _MCP.digitalWrite(3, (iColumn & 0x01) ? HIGH : LOW);
+            _MCP.digitalWrite(4, (iColumn & 0x02) ? HIGH : LOW);
+            _MCP.digitalWrite(5, (iColumn & 0x04) ? HIGH : LOW);
 
-            frequencySweep(iRow, iColumn, ad5933, gain);
+            frequencySweep(iRow, iColumn, _ad5933, _gain);
             rowStr += String(iColumn) + " ";
         }
 //        M5.Lcd.println(rowStr);
@@ -52,19 +51,19 @@ void computeTabImpedance(MCP23008 MCP, AD5933 ad5933, double gain[]) {
  * @param iColumn Index of the column electrode.
  * @return The computed impedance value.
  */
-double frequencySweep(int iRow, int iColumn, AD5933 ad5933, double gain[]) // Perform a frequency sweep and compute the impedance for the given electrode pair
+double frequencySweep(int iRow, int iColumn, AD5933 _ad5933, double _gain[]) // Perform a frequency sweep and compute the impedance for the given electrode pair
 {
     // Create arrays to hold the data
     int real[NUM_INCR + 1], imag[NUM_INCR + 1];
 
     // Perform the frequency sweep
-    if (ad5933.frequencySweep(real, imag, NUM_INCR + 1)) {
+    if (_ad5933.frequencySweep(real, imag, NUM_INCR + 1)) {
 
         // Compute impedance
         double realSquare = pow(real[0], 2);
         double imagSquare = pow(imag[0], 2);
         double magnitude = sqrt(realSquare + imagSquare);
-        double impedance = 1 / (magnitude * gain[0]);
+        double impedance = 1 / (magnitude * _gain[0]);
 
         // Store impedance
         tabImpedance[iRow][iColumn] = impedance - tabCalibration[iRow][iColumn];
@@ -132,15 +131,13 @@ void sendTabImpedance(){
     Serial.println("End of data sending");
 }
 
-void impedanceRandomCycle(int gesture_repetition,int sample_repetition, MCP23008 MCP, AD5933 ad5933, double gain[]) {
-    // create a list of gestures
-    // Copy the list geasture List into a new var
+void impedanceRandomCycle(int _gesture_repetition, int _sample_repetition, MCP23008 _MCP, AD5933 _ad5933, double _gain[]) {
 
     String gestures[7];
 
-    Serial.println("Number of repetitions for each gestures: " + String(gesture_repetition));
+    Serial.println("Number of repetitions for each gestures: " + String(_gesture_repetition));
 
-    for (int i = 0; i < gesture_repetition; i++) {
+    for (int i = 0; i < _gesture_repetition; i++) {
         Serial.println("Repetition " + String(i + 1));
 
         for (int j = 1; j < 8; j++) {
@@ -163,8 +160,8 @@ void impedanceRandomCycle(int gesture_repetition,int sample_repetition, MCP23008
             M5.Lcd.setCursor(110, 200);
             M5.Lcd.setTextSize(4);
             M5.Lcd.print("Hold");
-            for (int k = 0; k < sample_repetition; k++){
-                computeTabImpedance(MCP, ad5933, gain);
+            for (int k = 0; k < _sample_repetition; k++){
+                computeTabImpedance(_MCP, _ad5933, _gain);
                 sendTabImpedance();
                 fileCreation(gestures[j]);
                 if (k % 3 == 0){
@@ -185,12 +182,12 @@ void impedanceRandomCycle(int gesture_repetition,int sample_repetition, MCP23008
 }
 void fileCreation(const String& gesture){
     // Create a new file with the current date and time
-    if(!getLocalTime(&timeinfo)){
+    if(!getLocalTime(&timeInfo)){
         Serial.println("Failed to obtain time");
         return;
     }
     // Create a filename with the current gesture and the current date and time
-    String filename = "/" + gesture + "_" + String(timeinfo.tm_year + 1900) + "-" + String(timeinfo.tm_mon + 1) + "-" + String(timeinfo.tm_mday) + "_" + String(timeinfo.tm_hour) + "-" + String(timeinfo.tm_min) + "-" + String(timeinfo.tm_sec) + ".csv";
+    String filename = "/" + gesture + "_" + String(timeInfo.tm_year + 1900) + "-" + String(timeInfo.tm_mon + 1) + "-" + String(timeInfo.tm_mday) + "_" + String(timeInfo.tm_hour) + "-" + String(timeInfo.tm_min) + "-" + String(timeInfo.tm_sec) + ".csv";
 
     File file = SD.open(filename, FILE_WRITE);
     if (!file) {
@@ -217,4 +214,5 @@ void fileCreation(const String& gesture){
 
     file.close();
 }
+
 
