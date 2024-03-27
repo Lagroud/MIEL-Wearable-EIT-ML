@@ -37,7 +37,7 @@ extern int phase[]; // Array to store the phase values
 const String gestureList[] = {"CUSTOM", "FIST", "INDEX_PINCH", "LEFT", "RELAX", "RIGHT", "STRETCH", "THUMB_UP"};
 
 extern struct tm timeInfo; // Declare timeInfo
-
+extern m5::RTC8563_Class rtc; // Declare rtc
 //Wi-Fi information
 extern const char* ssid;
 extern const char* password;

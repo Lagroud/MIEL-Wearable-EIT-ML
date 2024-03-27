@@ -14,6 +14,8 @@ m5::touch_state_t prev_state;
 double gain[NUM_INCR + 1]; // Array to store the gain values
 int phase[NUM_INCR + 1];
 struct tm timeInfo;
+m5::RTC8563_Class rtc;
+
 const char* ssid = "";
 const char* password = "";
 
@@ -28,16 +30,15 @@ void setup() {
     M5.Lcd.clearDisplay();
 
     // Connect to Wi-Fi network with SSID and password (optional)
-//    WiFiClass::begin(ssid, password);
-//    if (WiFiClass::status() == WL_CONNECTED) {
-//        Serial.println("Connected to the WiFi network");
-//    } else {
-//        Serial.println("Failed to connect to the Wi-Fi network");
-//
-//    }
+    WiFiClass::begin(ssid, password);
+    if (WiFiClass::status() == WL_CONNECTED) {
+        Serial.println("Connected to the WiFi network");
+    } else {
+        Serial.println("Failed to connect to the Wi-Fi network");
+
+    }
 
     // Set time and date on the RTC8563 module
-    m5::RTC8563_Class rtc;
     rtc.begin();
 //    rtc.setTime({ 14, 21, 0 });
 //    rtc.setDate({ 2024, 3, 27, 3 });

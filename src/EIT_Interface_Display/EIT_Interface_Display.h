@@ -7,6 +7,7 @@
 #include <M5CoreS3.h>
 #include "EIT_Shared_Values.h"
 
+
 const int baseX = 160; // X coordinate of the first icon
 const int baseY = 50; // Y coordinate of the first icon
 const int iconSpacing = 100; // Spacing between the icons

@@ -3,6 +3,7 @@
 //
 #include "EIT_Interface_Display/EIT_Interface_Display.h"
 #include "EIT_Impedance_measurement/EIT_Impedance_measurement.h"
+#include "EIT_Shared_Values.h"
 
 void drawPearLogo() {
     M5.Lcd.fillCircle(160, 100, 25, TFT_WHITE);
@@ -123,6 +124,54 @@ void drawRecordScreen(){
 void drawFileScreen(){
     M5.Lcd.clearDisplay();
     M5.Lcd.setCursor(0, 0);
+    // Check if an SD card is attached to the M5CoreS3 and print the card type and size
+    uint8_t cardType = SD.cardType();
+
+    if (cardType == CARD_NONE) {
+        Serial.println("No SD card attached");
+        M5.Lcd.println("No SD card attached");
+        return;
+    }
+    Serial.print("SD Card Type: ");
+    M5.Lcd.print("SD Card Type: ");
+    if (cardType == CARD_MMC) {
+        Serial.println("MMC");
+        M5.Lcd.println("MMC");
+    } else if (cardType == CARD_SD) {
+        Serial.println("SDSC");
+        M5.Lcd.println("SDSC");
+    } else if (cardType == CARD_SDHC) {
+        Serial.println("SDHC");
+        M5.Lcd.println("SDHC");
+    } else {
+        Serial.println("UNKNOWN");
+        M5.Lcd.println("UNKNOWN");
+    }
+
+    uint64_t cardSize = SD.cardSize() / (1024 * 1024);
+    Serial.printf("SD Card Size: %lluMB\n", cardSize);
+    Serial.println();
+    M5.Lcd.printf("SD Card Size: %lluMB\n", cardSize);
+
+    // List all files in the root directory
+    File root = SD.open("/");
+    if (!root) {
+        Serial.println("Failed to open directory");
+        M5.Lcd.println("Failed to open directory");
+        return;
+    }
+    Serial.println("Files found in the root directory:");
+    M5.Lcd.println("Files found in the root directory:");
+    while (true) {
+        File entry = root.openNextFile();
+        if (!entry) {
+            break;
+        }
+        Serial.println(entry.name());
+        M5.Lcd.println(entry.name());
+        entry.close();
+    }
+    root.close();
 }
 
 void gestureRepetitionDisplay(int _gesture_repetition){
@@ -244,6 +293,128 @@ void drawGestureListScreen(const String& gesture){
 
     M5.Lcd.setCursor(0, 0);
 }
+
+void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour, uint16_t minute){
+    M5.Lcd.clearDisplay();
+    M5.Lcd.clearDisplay();
+    Serial.println();
+    M5.Lcd.setCursor(0, 0);
+    M5.Lcd.setTextSize(1);
+
+    if (MCP.isConnected()) {
+        Serial.println("MCP23008 is connected");
+        M5.Lcd.drawRoundRect(5, 0, 150, 45, 15, TFT_GREEN);
+        M5.Lcd.setCursor(35, 15);
+        M5.Lcd.setTextSize(2);
+        M5.Lcd.print("MCP23008");
+        // Set all the GP0-GP7 pins values to LOW
+        for (int i = 0; i < 8; i++) {
+            MCP.pinMode(i, OUTPUT); // Set the GP0-GP7 pins as outputs
+            MCP.digitalWrite(i, LOW); // Set the state of the first 8 digital pins of the MCP23008 to LOW
+        }
+    } else {
+        Serial.println("MCP23008 is not connected");
+        M5.Lcd.drawRoundRect(5, 0, 150, 45, 15, TFT_RED);
+        M5.Lcd.setCursor(35, 15);
+        M5.Lcd.setTextSize(2);
+        M5.Lcd.print("MCP23008");
+    }
+    if (!(AD5933::reset() &&
+          AD5933::setInternalClock(true) &&
+          AD5933::setStartFrequency(START_FREQ) &&
+          AD5933::setIncrementFrequency(FREQ_INCR) &&
+          AD5933::setNumberIncrements(NUM_INCR) &&
+          AD5933::setPGAGain(PGA_GAIN_X1))) {
+        Serial.println("AD5933 initialization failed");
+    }
+    // Set the settling cycles to 1 for faster measurements (optional)
+    if (!ad5933.setSettlingCycles(1)) {
+        Serial.println("AD5933 settling cycles failed");
+    }
+
+    // Perform calibration sweep
+    if (AD5933::calibrate(gain, phase, REF_RESIST, NUM_INCR + 1)) {
+        Serial.println("AD5933 calibrated");
+        M5.Lcd.drawRoundRect(165, 0, 150, 45, 15, TFT_GREEN);
+        M5.Lcd.setCursor(207, 15);
+        M5.Lcd.print("AD5933");
+    } else {
+        Serial.println("AD5933 calibration failed");
+        M5.Lcd.drawRoundRect(165, 0, 150, 45, 15, TFT_RED);
+        M5.Lcd.setCursor(207, 15);
+        M5.Lcd.print("AD5933");
+    }
+    //check serial communication
+    if (Serial) {
+        M5.Lcd.drawRoundRect(5, 50, 150, 45, 15, TFT_GREEN);
+        M5.Lcd.setCursor(45, 65);
+        M5.Lcd.print("Serial");
+    } else {
+        M5.Lcd.drawRoundRect(5, 50, 150, 45, 15, TFT_RED);
+        M5.Lcd.setCursor(45, 65);
+        M5.Lcd.print("Serial");
+    }
+    if (WiFiClass::status() == WL_CONNECTED) {
+        M5.Lcd.drawRoundRect(165, 50, 150, 45, 15, TFT_GREEN);
+        M5.Lcd.setCursor(217, 65);
+        M5.Lcd.print("WiFi");
+    } else {
+        M5.Lcd.drawRoundRect(165, 50, 150, 45, 15, TFT_RED);
+        M5.Lcd.setCursor(217, 65);
+        M5.Lcd.print("WiFi");
+    }
+    //print the date and time
+    if(!getLocalTime(&timeInfo)){
+        Serial.println("Failed to obtain time");
+        M5.Lcd.drawRoundRect(5, 100, 150, 45, 15, TFT_RED);
+        M5.Lcd.setCursor(55, 115);
+        M5.Lcd.print("Time");
+        return;
+    }
+    Serial.printf("%02d %02d %04d %02d:%02d", month, day, year, hour, minute);
+    M5.Lcd.drawRoundRect(5, 100, 150, 45, 15, TFT_WHITE);
+    M5.Lcd.setCursor(55, 115);
+    M5.Lcd.print("Time");
+    M5.Lcd.setCursor(70, 175);
+    M5.Lcd.printf("%02d/%02d/%04d %02d:%02d", month, day, year, hour, minute);
+
+    M5.Lcd.setTextSize(1);
+}
+
+void drawTimeScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour, uint16_t minute){
+    M5.Lcd.clearDisplay();
+    // print the date and time
+    if(!getLocalTime(&timeInfo)){
+        Serial.println("Failed to obtain time");
+        M5.Lcd.println("Failed to obtain time");
+        return;
+    }else {
+
+        M5.Lcd.setTextSize(2);
+        M5.Lcd.setCursor(15, 100);
+        M5.Lcd.printf("%02d   %02d   %04d  %02d : %02d", month, day, year, hour, minute);
+        //Month arrows
+        M5.Lcd.fillTriangle(25, 30, 5, 60, 45, 60, TFT_WHITE);
+        M5.Lcd.fillTriangle(25, 180, 5, 150, 45, 150, TFT_WHITE);
+        //Day arrows
+        M5.Lcd.fillTriangle(90, 30, 70, 60, 110, 60, TFT_WHITE);
+        M5.Lcd.fillTriangle(90, 180, 70, 150, 110, 150, TFT_WHITE);
+        //Year arrows
+        M5.Lcd.fillTriangle(155, 30, 135, 60, 175, 60, TFT_WHITE);
+        M5.Lcd.fillTriangle(155, 180, 135, 150, 175, 150, TFT_WHITE);
+        //Hour arrows
+        M5.Lcd.fillTriangle(220, 30, 200, 60, 240, 60, TFT_WHITE);
+        M5.Lcd.fillTriangle(220, 180, 200, 150, 240, 150, TFT_WHITE);
+        //Minute arrows
+        M5.Lcd.fillTriangle(285, 30, 265, 60, 305, 60, TFT_WHITE);
+        M5.Lcd.fillTriangle(285, 180, 265, 150, 305, 150, TFT_WHITE);
+
+        M5.Lcd.setTextSize(1);
+        M5.Lcd.setCursor(5, 220);
+        M5.Lcd.print("Press the m5's restart button to apply the changes");
+    }
+}
+
 void interfaceGestion(){
     M5.update();
     auto touch = M5.Touch.getDetail();
@@ -269,6 +440,15 @@ void interfaceGestion(){
             M5.Lcd.clearDisplay();
             page = 2;
             drawRecordScreen();
+        } else if (touch.state == m5::flick_begin && (page == 31 || page == 32 || page == 33 || page == 34 || page == 35)) {
+            M5.Lcd.clearDisplay();
+            page = 3;
+            auto month = rtc.getDate().month;
+            auto day = rtc.getDate().date;
+            auto year = rtc.getDate().year;
+            auto hour = rtc.getTime().hours;
+            auto minute = rtc.getTime().minutes;
+            drawConfigScreen(month, day, year, hour, minute);
         }
     }
     M5.Lcd.setCursor(0, 0);
@@ -279,55 +459,6 @@ void interfaceGestion(){
             if (touch.x > 30 && touch.x < 90 && touch.y > 20 && touch.y < 80) {
                 page = 1;
                 drawFileScreen();
-
-                // Check if an SD card is attached to the M5CoreS3 and print the card type and size
-                uint8_t cardType = SD.cardType();
-
-                if (cardType == CARD_NONE) {
-                    Serial.println("No SD card attached");
-                    M5.Lcd.println("No SD card attached");
-                    return;
-                }
-                Serial.print("SD Card Type: ");
-                M5.Lcd.print("SD Card Type: ");
-                if (cardType == CARD_MMC) {
-                    Serial.println("MMC");
-                    M5.Lcd.println("MMC");
-                } else if (cardType == CARD_SD) {
-                    Serial.println("SDSC");
-                    M5.Lcd.println("SDSC");
-                } else if (cardType == CARD_SDHC) {
-                    Serial.println("SDHC");
-                    M5.Lcd.println("SDHC");
-                } else {
-                    Serial.println("UNKNOWN");
-                    M5.Lcd.println("UNKNOWN");
-                }
-
-                uint64_t cardSize = SD.cardSize() / (1024 * 1024);
-                Serial.printf("SD Card Size: %lluMB\n", cardSize);
-                Serial.println();
-                M5.Lcd.printf("SD Card Size: %lluMB\n", cardSize);
-
-                // List all files in the root directory
-                File root = SD.open("/");
-                if (!root) {
-                    Serial.println("Failed to open directory");
-                    M5.Lcd.println("Failed to open directory");
-                    return;
-                }
-                Serial.println("Files found in the root directory:");
-                M5.Lcd.println("Files found in the root directory:");
-                while (true) {
-                    File entry = root.openNextFile();
-                    if (!entry) {
-                        break;
-                    }
-                    Serial.println(entry.name());
-                    M5.Lcd.println(entry.name());
-                    entry.close();
-                }
-                root.close();
             }
             // Check if the user clicked on the record icon
             if (touch.x > 130 && touch.x < 190 && touch.y > 20 && touch.y < 80) {
@@ -337,75 +468,12 @@ void interfaceGestion(){
             // Check if the user clicked on the configuration icon
             if (touch.x > 230 && touch.x < 290 && touch.y > 20 && touch.y < 80) {
                 page = 3;
-                M5.Lcd.clearDisplay();
-                Serial.println();
-                M5.Lcd.setCursor(0, 0);
-                M5.Lcd.setTextSize(1);
-
-                if (MCP.isConnected()) {
-                    Serial.println("MCP23008 is connected");
-                    M5.Lcd.println("MCP23008 is connected");
-                    // Set all the GP0-GP7 pins values to LOW
-                    for (int i = 0; i < 8; i++) {
-                        MCP.pinMode(i, OUTPUT); // Set the GP0-GP7 pins as outputs
-                        MCP.digitalWrite(i, LOW); // Set the state of the first 8 digital pins of the MCP23008 to LOW
-                    }
-                } else {
-                    Serial.println("MCP23008 is not connected");
-                    M5.Lcd.setTextColor(TFT_RED);
-                    M5.Lcd.println("MCP23008 is not connected");
-                    M5.Lcd.setTextColor(TFT_WHITE);
-                }
-                if (!(AD5933::reset() &&
-                      AD5933::setInternalClock(true) &&
-                      AD5933::setStartFrequency(START_FREQ) &&
-                      AD5933::setIncrementFrequency(FREQ_INCR) &&
-                      AD5933::setNumberIncrements(NUM_INCR) &&
-                      AD5933::setPGAGain(PGA_GAIN_X1))) {
-                    Serial.println("AD5933 initialization failed");
-                    M5.Lcd.setTextColor(TFT_RED);
-                    M5.Lcd.println("AD5933 initialization failed");
-                    M5.Lcd.setTextColor(TFT_WHITE);
-                }
-                // Set the settling cycles to 1 for faster measurements (optional)
-                if (!ad5933.setSettlingCycles(1)) {
-                    Serial.println("AD5933 settling cycles failed");
-                }
-
-                // Perform calibration sweep
-                if (AD5933::calibrate(gain, phase, REF_RESIST, NUM_INCR + 1)) {
-                    Serial.println("AD5933 calibrated");
-                    M5.Lcd.println("AD5933 calibrated");
-                } else {
-                    Serial.println("AD5933 calibration failed");
-                    M5.Lcd.setTextColor(TFT_RED);
-                    M5.Lcd.println("AD5933 calibration failed");
-                    M5.Lcd.setTextColor(TFT_WHITE);
-                }
-                //check serial communication
-                if (Serial) {
-                    M5.Lcd.setTextColor(TFT_GREEN);
-                    M5.Lcd.println("Serial communication established");
-                    M5.Lcd.setTextColor(TFT_WHITE);
-                } else {
-                    M5.Lcd.setTextColor(TFT_RED);
-                    M5.Lcd.println("Serial communication failed");
-                    M5.Lcd.setTextColor(TFT_WHITE);
-                }
-                if (WiFiClass::status() == WL_CONNECTED) {
-                    M5.Lcd.println("Connected to the WiFi network");
-                } else {
-                    M5.Lcd.println("Failed to connect to the WiFi network");
-                }
-                //print the date and time
-                if(!getLocalTime(&timeInfo)){
-                    Serial.println("Failed to obtain time");
-                    M5.Lcd.println("Failed to obtain time");
-                    return;
-                }
-                Serial.println(&timeInfo, "%A, %B %d %Y %H:%M:%S");
-                M5.Lcd.println(&timeInfo, "%A, %B %d %Y %H:%M:%S");
-
+                auto month = rtc.getDate().month;
+                auto day = rtc.getDate().date;
+                auto year = rtc.getDate().year;
+                auto hour = rtc.getTime().hours;
+                auto minute = rtc.getTime().minutes;
+                drawConfigScreen(month, day, year, hour, minute);
             }
         }
 
@@ -420,28 +488,22 @@ void interfaceGestion(){
                 unsigned long start1 = millis();
                 computeTabImpedance(0x20, ad5933, gain);
                 unsigned long end1 = millis();
-                Serial.println();
-                printTabImpedance();
-                Serial.println();
-                Serial.println(gestureList[gesture_index]);
+
                 if (Serial) {
+                    Serial.println(gestureList[gesture_index]);
                     sendTabImpedance();
-                    M5.Lcd.setTextColor(TFT_BLUE);
                     M5.Lcd.println("Data sent for CSV conversion");
-                    M5.Lcd.setTextColor(TFT_WHITE);
                     Serial.println();
                 } else {
+                    Serial.println("No serial communication");
                     M5.Lcd.setTextColor(TFT_RED);
-                    M5.Lcd.println("Serial communication failed");
+                    M5.Lcd.println("No serial communication");
                     M5.Lcd.setTextColor(TFT_WHITE);
                 }
                 // if there is a sd card
                 if (SD.cardType() != CARD_NONE) {
                     fileCreation(gestureList[gesture_index]);
-                } else {
-                    M5.Lcd.setTextColor(TFT_RED);
-                    M5.Lcd.println("No SD card attached");
-                    M5.Lcd.setTextColor(TFT_WHITE);
+                    M5.Lcd.println("File created on the SD card");
                 }
                 unsigned long end = millis();
                 Serial.println("Time elapsed: " + String(end - start) + " ms");
@@ -458,6 +520,229 @@ void interfaceGestion(){
             M5.Lcd.clearDisplay();
             page = 5;
             drawGestureListScreen(gestureList[gesture_index]);
+        }
+    }
+    if (page == 3) {
+        // Check if the user clicked on the MCP23008 round rect
+        if(touch.wasClicked() && touch.x > 5 && touch.x < 155 && touch.y > 0 && touch.y < 45){
+            page = 31;
+            M5.Lcd.fillRoundRect(0, 30, 320, 160, 15, TFT_WHITE);
+            M5.Lcd.setCursor(5, 80);
+            M5.Lcd.setTextSize(1);
+            M5.Lcd.setTextColor(TFT_BLACK);
+            if (MCP.isConnected()) {
+                Serial.println("MCP23008 is connected");
+                M5.Lcd.println("MCP23008 is connected and configured");
+            } else {
+                Serial.println("MCP23008 is not connected");
+                M5.Lcd.println("MCP23008 is not connected");
+                M5.Lcd.println("Please check the MCP23008 connection and restart the M5CoreS3\n");
+                M5.Lcd.println("If problems persist, check MCP23008 configurations");
+                M5.Lcd.println("in the setup() function of the main.cpp file");
+            }
+            M5.Lcd.setTextColor(TFT_WHITE);
+        }
+        // Check if the user clicked on the AD5933 round rect
+        if(touch.wasClicked() && touch.x > 165 && touch.x < 315 && touch.y > 0 && touch.y < 45){
+            page = 32;
+            M5.Lcd.fillRoundRect(0, 30, 320, 160, 15, TFT_WHITE);
+            M5.Lcd.setCursor(5, 60);
+            M5.Lcd.setTextSize(1);
+            M5.Lcd.setTextColor(TFT_BLACK);
+            if (!(AD5933::reset() &&
+                  AD5933::setInternalClock(true) &&
+                  AD5933::setStartFrequency(START_FREQ) &&
+                  AD5933::setIncrementFrequency(FREQ_INCR) &&
+                  AD5933::setNumberIncrements(NUM_INCR) &&
+                  AD5933::setPGAGain(PGA_GAIN_X1))) {
+                Serial.println("AD5933 initialization failed");
+                M5.Lcd.println("AD5933 initialization failed");
+                M5.Lcd.println("Please check the AD5933 connection and restart the M5CoreS3\n");
+                M5.Lcd.println("If problems persist, check AD5933 configurations");
+                M5.Lcd.println("like the start frequency, increment frequency,");
+                M5.Lcd.println("number of increments, PGA gain and settling cycles");
+                M5.Lcd.println("in the setup() function of the main.cpp file\n");
+            } else {
+                M5.Lcd.println("AD5933 is connected and configured");
+            }
+            // Set the settling cycles to 1 for faster measurements (optional)
+            if (!ad5933.setSettlingCycles(1)) {
+                Serial.println("AD5933 settling cycles failed");
+                M5.Lcd.println("AD5933 settling cycles failed\n");
+            }else{
+                M5.Lcd.println("AD5933 settling cycles set to 1\n");
+            }
+
+            // Perform calibration sweep
+            if (AD5933::calibrate(gain, phase, REF_RESIST, NUM_INCR + 1)) {
+                Serial.println("AD5933 calibrated");
+                M5.Lcd.println("AD5933 calibrated");
+            } else {
+                Serial.println("AD5933 calibration failed");
+                M5.Lcd.println("AD5933 calibration failed\n");
+            }
+            M5.Lcd.setTextColor(TFT_WHITE);
+        }
+        // Check if the user clicked on the Serial round rect
+        if(touch.wasClicked() && touch.x > 5 && touch.x < 155 && touch.y > 50 && touch.y < 95){
+            page = 33;
+            M5.Lcd.fillRoundRect(0, 30, 320, 160, 15, TFT_WHITE);
+            M5.Lcd.setCursor(5, 60);
+            M5.Lcd.setTextSize(1);
+            M5.Lcd.setTextColor(TFT_BLACK);
+            if (Serial) {
+                Serial.println("Serial communication established");
+                M5.Lcd.println("Serial communication established");
+            } else {
+                Serial.println("No serial communication established");
+                M5.Lcd.println("No serial communication established");
+                M5.Lcd.println("Please check the serial connection and restart the M5CoreS3\n");
+                M5.Lcd.println("If problems persist, check the serial COM port and baud rate");
+                M5.Lcd.println("in the setup() function of the main.cpp file\n");
+                M5.Lcd.println("Also check the USB cable connection and be sure to use admin terminal");
+            }
+            M5.Lcd.setTextColor(TFT_WHITE);
+        }
+        // Check if the user clicked on the WiFi round rect
+        if(touch.wasClicked() && touch.x > 165 && touch.x < 315 && touch.y > 70 && touch.y < 95){
+            page = 34;
+            M5.Lcd.fillRoundRect(0, 30, 320, 160, 15, TFT_WHITE);
+            M5.Lcd.setCursor(5, 60);
+            M5.Lcd.setTextSize(1);
+            M5.Lcd.setTextColor(TFT_BLACK);
+            if (WiFiClass::status() == WL_CONNECTED) {
+                Serial.println("WiFi connected");
+                M5.Lcd.println("WiFi connected");
+            } else {
+                Serial.println("WiFi not connected");
+                M5.Lcd.println("WiFi not connected\n");
+                M5.Lcd.println("Set WiFi SSID and password in the main.cpp file\n");
+            }
+            M5.Lcd.setTextColor(TFT_WHITE);
+        }
+        // Check if the user clicked on the Time round rect
+        if(touch.wasClicked() && touch.x > 5 && touch.x < 155 && touch.y > 100 && touch.y < 145){
+            page = 35;
+            auto month = rtc.getDate().month;
+            auto day = rtc.getDate().date;
+            auto year = rtc.getDate().year;
+            auto hour = rtc.getTime().hours;
+            auto minute = rtc.getTime().minutes;
+            drawTimeScreen(month, day, year, hour, minute);
+        }
+    }
+    if (page == 35) {
+        auto month = rtc.getDate().month;
+        auto day = rtc.getDate().date;
+        auto year = rtc.getDate().year;
+        auto hour = rtc.getTime().hours;
+        auto minute = rtc.getTime().minutes;
+
+        // Check if the user clicked on the month up arrow
+        if(touch.wasClicked() && touch.x > 5 && touch.x < 45 && touch.y > 30 && touch.y < 60){
+            // Set the month to the next month
+            month++;
+            if (month > 12) {
+                month = 1;
+            }
+            rtc.setDate({year, month, day });
+            drawTimeScreen(month, day, year, hour, minute);
+        }
+        // Check if the user clicked on the month down arrow
+        if(touch.wasClicked() && touch.x > 5 && touch.x < 45 && touch.y > 150 && touch.y < 180){
+            // Set the month to the previous month
+            month--;
+            if (month < 1) {
+                month = 12;
+            }
+            rtc.setDate({year, month, day });
+            drawTimeScreen(month, day, year, hour, minute);
+        }
+        // Check if the user clicked on the day up arrow
+        if(touch.wasClicked() && touch.x > 70 && touch.x < 110 && touch.y > 30 && touch.y < 60){
+            // Set the day to the next day
+            day++;
+            if (month == 2 && day > 29){
+                day = 1;
+            }
+            if (day > 31) {
+                day = 1;
+            }
+            rtc.setDate({year, month, day });
+            drawTimeScreen(month, day, year, hour, minute);
+        }
+        // Check if the user clicked on the day down arrow
+        if(touch.wasClicked() && touch.x > 70 && touch.x < 110 && touch.y > 150 && touch.y < 180){
+            // Set the day to the previous day
+            day--;
+            if (month == 2 && day < 1){
+                day = 29;
+            }
+            if (day < 1) {
+                day = 31;
+            }
+            rtc.setDate({year, month, day });
+            drawTimeScreen(month, day, year, hour, minute);
+        }
+        // Check if the user clicked on the year up arrow
+        if(touch.wasClicked() && touch.x > 135 && touch.x < 175 && touch.y > 30 && touch.y < 60){
+            // Set the year to the next year
+            year++;
+            if (year > 2099) {
+                year = 2024;
+            }
+            rtc.setDate({year, month, day });
+            drawTimeScreen(month, day, year, hour, minute);
+        }
+        // Check if the user clicked on the year down arrow
+        if(touch.wasClicked() && touch.x > 135 && touch.x < 175 && touch.y > 150 && touch.y < 180){
+            // Set the year to the previous year
+            year--;
+            if (year < 2024) {
+                year = 2099;
+            }
+            rtc.setDate({year, month, day });
+            drawTimeScreen(month, day, year, hour, minute);
+        }
+        // Check if the user clicked on the hour up arrow
+        if(touch.wasClicked() && touch.x > 190 && touch.x < 250 && touch.y > 30 && touch.y < 60){
+            // Set the hour to the next hour
+            hour++;
+            if (hour > 23) {
+                hour = 0;
+            }
+            rtc.setTime({hour, minute, 0 });
+            drawTimeScreen(month, day, year, hour, minute);
+        }
+        // Check if the user clicked on the hour down arrow
+        if(touch.wasClicked() && touch.x > 190 && touch.x < 250 && touch.y > 150 && touch.y < 180){
+            // Set the hour to the previous hour
+            hour--;
+            if (hour < 0) {
+                hour = 23;
+            }
+            rtc.setTime({hour, minute, 0 });
+            drawTimeScreen(month, day, year, hour, minute);
+        }
+        // Check if the user clicked on the minute up arrow
+        if(touch.wasClicked() && touch.x > 265 && touch.x < 325 && touch.y > 30 && touch.y < 60){
+            // Set the minute to the next minute
+            minute++;
+            if (minute > 59) {
+                minute = 0;
+            }
+            rtc.setTime({hour, minute, 0 });
+            drawTimeScreen(month, day, year, hour, minute);
+        }
+        // Check if the user clicked on the minute down arrow
+        if(touch.wasClicked() && touch.x > 265 && touch.x < 325 && touch.y > 150 && touch.y < 180){
+            // Set the minute to the previous minute
+            minute--;
+            if (minute < 0) {
+                minute = 59;
+            }
+            rtc.setTime({hour, minute, 0 });
+            drawTimeScreen(month, day, year, hour, minute);
         }
     }
     // On the cycle screen

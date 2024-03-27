@@ -194,7 +194,7 @@ void fileCreation(const String& gesture){
         Serial.println("Failed to create file");
         return;
     }
-    Serial.println("File created");
+    Serial.println("File created on the SD card");
     // Write the impedance values to the file
     for (int i = 0; i < 8; i++) // Loop through each row of the tabImpedance matrix
     {
