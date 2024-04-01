@@ -1,16 +1,25 @@
 //
 // Created by tvannier1 on 13/03/2024.
 //
+
+// Include necessary libraries and header files
 #include "EIT_Interface_Display/EIT_Interface_Display.h"
 #include "EIT_Impedance_measurement/EIT_Impedance_measurement.h"
 #include "EIT_Shared_Values.h"
 
+/**
+ * @brief Draws the Pear logo on the M5 LCD screen.
+ */
 void drawPearLogo() {
     M5.Lcd.fillCircle(160, 100, 25, TFT_WHITE);
     M5.Lcd.fillCircle(160, 140, 40, TFT_WHITE);
     M5.Lcd.fillRect(155, 50, 6, 15, TFT_WHITE);
     M5.Lcd.fillCircle(200, 120, 25, TFT_BLACK);
 }
+
+/**
+ * @brief Draws an ECG loading bar on the M5 LCD screen.
+ */
 void drawEcgLoadingBar() {
     int amplitude1 = 40; // Amplitude of the first ECG wave component
     int frequency1 = 1; // Frequency of the first ECG wave component
@@ -49,6 +58,11 @@ void drawEcgLoadingBar() {
     }
 }
 
+/**
+ * @brief Draws the Files icon on the M5 LCD screen.
+ * @param x The x-coordinate of the center of the icon.
+ * @param y The y-coordinate of the center of the icon.
+ */
 void drawFilesIcon(int x, int y) {
     M5.Lcd.drawRoundRect(baseX - iconSpacing - 30, baseY - 30, 60, 60, 15, TFT_WHITE);
     M5.Lcd.fillRoundRect(x - 20, y - 20, 40, 40, 5, TFT_BLUE);
@@ -57,10 +71,17 @@ void drawFilesIcon(int x, int y) {
     M5.Lcd.fillRect(x + 10, y - 15, 5, 10, TFT_WHITE);
     M5.Lcd.setCursor(baseX - iconSpacing - 18, baseY + 35);
     M5.Lcd.print("Files");
-
 }
-void drawConfigIcon(int x, int y, int radius, int numTeeth, int toothSize) {
 
+/**
+ * @brief Draws the Config icon on the M5 LCD screen.
+ * @param x The x-coordinate of the center of the icon.
+ * @param y The y-coordinate of the center of the icon.
+ * @param radius The radius of the icon.
+ * @param numTeeth The number of teeth on the gear of the icon.
+ * @param toothSize The size of each tooth on the gear of the icon.
+ */
+void drawConfigIcon(int x, int y, int radius, int numTeeth, int toothSize) {
     M5.Lcd.fillCircle(x, y, radius, TFT_WHITE);
     M5.Lcd.drawRoundRect(baseX + iconSpacing - 30, baseY - 30, 60, 60, 15, TFT_WHITE);
     float angleStep = 2 * PI / numTeeth;
@@ -75,14 +96,24 @@ void drawConfigIcon(int x, int y, int radius, int numTeeth, int toothSize) {
     M5.Lcd.print("Config");
 }
 
+/**
+ * @brief Draws the Record icon on the M5 LCD screen.
+ * @param x The x-coordinate of the center of the icon.
+ * @param y The y-coordinate of the center of the icon.
+ */
 void drawRecordIcon(int x, int y) {
-
     M5.Lcd.drawRoundRect(baseX - 30, baseY - 30, 60, 60, 15, TFT_WHITE);
     M5.Lcd.fillCircle(baseX, baseY, 20, TFT_RED);
     M5.Lcd.setCursor(baseX - 18, baseY + 35);
     M5.Lcd.print("Record");
 }
 
+/**
+ * @brief Clears the display and draws the home screen.
+ *
+ * The home screen consists of three icons: Record, Files, and Config.
+ * These icons are drawn by calling their respective functions.
+ */
 void drawHomeScreen() {
     M5.Lcd.clearDisplay();
     drawRecordIcon(baseX, baseY);
@@ -92,6 +123,12 @@ void drawHomeScreen() {
     M5.Lcd.setCursor(0, 0);
 }
 
+/**
+ * @brief Clears the display and draws the record screen.
+ *
+ * The record screen consists of three buttons: Manual Record, Record Cycle, and Record List.
+ * Each button is drawn with a specific shape and label.
+ */
 void drawRecordScreen(){
     M5.Lcd.clearDisplay();
 
@@ -121,6 +158,12 @@ void drawRecordScreen(){
     M5.Lcd.setCursor(0, 0);
 }
 
+/**
+ * @brief Clears the display and draws the file screen.
+ *
+ * The file screen displays information about the SD card if it is attached.
+ * It prints the card type, size, and lists all files in the root directory.
+ */
 void drawFileScreen(){
     M5.Lcd.clearDisplay();
     M5.Lcd.setCursor(0, 0);
@@ -174,6 +217,14 @@ void drawFileScreen(){
     root.close();
 }
 
+/**
+ * @brief Draws the gesture repetition display.
+ *
+ * The display consists of two round rectangles labeled "Gesture" and "Sample".
+ * The number of gesture repetitions is displayed in a large font size.
+ *
+ * @param _gesture_repetition The number of gesture repetitions.
+ */
 void gestureRepetitionDisplay(int _gesture_repetition){
     M5.Lcd.drawRoundRect(5, 0, 150, 45, 15, TFT_GREEN);
     M5.Lcd.setCursor(40, 15);
@@ -188,6 +239,15 @@ void gestureRepetitionDisplay(int _gesture_repetition){
     M5.Lcd.print(_gesture_repetition);
     M5.Lcd.setTextSize(1);
 }
+
+/**
+ * @brief Displays the sample repetition on the screen.
+ *
+ * This function draws a rectangle on the screen and displays the number of sample repetitions.
+ * It also labels the display with "Sample" and "Gesture".
+ *
+ * @param _sample_repetition The number of sample repetitions.
+ */
 void sampleRepetitionDisplay(int _sample_repetition){
     M5.Lcd.drawRoundRect(165, 0, 150, 45, 15, TFT_GREEN);
     M5.Lcd.setCursor(207, 15);
@@ -202,6 +262,17 @@ void sampleRepetitionDisplay(int _sample_repetition){
     M5.Lcd.print(_sample_repetition);
     M5.Lcd.setTextSize(1);
 }
+
+/**
+ * @brief Draws the random cycle screen.
+ *
+ * This function clears the display and prints "Repetition". It also draws the start record button.
+ * Depending on the value of _isGesture, it displays either the gesture repetition or the sample repetition.
+ *
+ * @param _gesture_repetition The number of gesture repetitions.
+ * @param _sample_repetition The number of sample repetitions.
+ * @param _isGesture A boolean value indicating whether the gesture repetition is to be displayed.
+ */
 void drawRandomCycleScreen(int _gesture_repetition, int _sample_repetition, boolean _isGesture){
     M5.Lcd.clearDisplay();
 
@@ -225,6 +296,14 @@ void drawRandomCycleScreen(int _gesture_repetition, int _sample_repetition, bool
     M5.Lcd.fillTriangle(210, 140, 245, 115, 210 ,90, TFT_WHITE);
 }
 
+/**
+ * @brief Displays the given gesture on the screen.
+ *
+ * This function clears the display and prints the given gesture in a large font size.
+ * The position of the text depends on the length of the gesture name.
+ *
+ * @param gesture The gesture to be displayed.
+ */
 void doGestureDisplay(const String& gesture){
     M5.Lcd.clearDisplay();
     M5.Lcd.setTextSize(4);
@@ -245,6 +324,15 @@ void doGestureDisplay(const String& gesture){
     }
     M5.Lcd.setTextSize(1);
 }
+
+/**
+ * @brief Displays a countdown on the screen.
+ *
+ * This function displays a countdown from the given number to 0, with a delay of 1 second between each number.
+ * The countdown is displayed in a large font size.
+ *
+ * @param countDown The starting number of the countdown.
+ */
 void countDownDisplay(int countDown){
     for (int i = countDown; i > 0; i--) {
         M5.Lcd.fillRect(140, 200, 40, 40, TFT_BLACK);
@@ -254,20 +342,33 @@ void countDownDisplay(int countDown){
         delay(1000);
     }
 }
-
+/**
+ * @brief Draws the gesture list screen.
+ *
+ * This function clears the display and draws a list of gestures on the screen.
+ * The list is displayed in a round rectangle, with triangles pointing up and down to indicate scrolling.
+ * The position and size of the text depend on the length of the gesture name.
+ *
+ * @param gesture The gesture to be displayed.
+ */
 void drawGestureListScreen(const String& gesture){
+    // Clear the display
     M5.Lcd.clearDisplay();
 
+    // Draw a round rectangle for the gesture list
+    // The size and position of the rectangle depend on the length of the gesture name
     if (gesture != gestureList[2])
         M5.Lcd.drawRoundRect(50, 85, 220, 60, 15, TFT_WHITE);
     else
         M5.Lcd.drawRoundRect(20, 85, 280, 60, 15, TFT_WHITE);
 
-    //draw a triangle up the round rect in the middle x and  pointing to the top
+    // Draw a triangle pointing up at the top of the round rectangle
     M5.Lcd.fillTriangle(160, 20, 125, 60, 195, 60, TFT_WHITE);
-    //draw a triangle down the round rect in the middle x and  pointing to the bottom
+    // Draw a triangle pointing down at the bottom of the round rectangle
     M5.Lcd.fillTriangle(160, 210, 125, 170, 195, 170, TFT_WHITE);
 
+    // Print the gesture name in the round rectangle
+    // The position and size of the text depend on the length of the gesture name
     if(gesture == gestureList[0]){
         M5.Lcd.setTextSize(4);
         M5.Lcd.setCursor(90, 100);
@@ -289,11 +390,25 @@ void drawGestureListScreen(const String& gesture){
         M5.Lcd.print(gesture);
     }
 
+    // Reset the text size
     M5.Lcd.setTextSize(1);
 
+    // Reset the cursor position
     M5.Lcd.setCursor(0, 0);
 }
 
+/**
+ * @brief Draws the configuration screen.
+ *
+ * This function clears the display and prints the status of various components such as MCP23008, AD5933, Serial, WiFi, and Time.
+ * It also prints the current date and time.
+ *
+ * @param month The current month.
+ * @param day The current day.
+ * @param year The current year.
+ * @param hour The current hour.
+ * @param minute The current minute.
+ */
 void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour, uint16_t minute){
     M5.Lcd.clearDisplay();
     M5.Lcd.clearDisplay();
@@ -301,6 +416,7 @@ void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour
     M5.Lcd.setCursor(0, 0);
     M5.Lcd.setTextSize(1);
 
+    // Check if MCP23008 is connected
     if (MCP.isConnected()) {
         Serial.println("MCP23008 is connected");
         M5.Lcd.drawRoundRect(5, 0, 150, 45, 15, TFT_GREEN);
@@ -319,6 +435,8 @@ void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour
         M5.Lcd.setTextSize(2);
         M5.Lcd.print("MCP23008");
     }
+
+    // Initialize and calibrate AD5933
     if (!(AD5933::reset() &&
           AD5933::setInternalClock(true) &&
           AD5933::setStartFrequency(START_FREQ) &&
@@ -344,7 +462,8 @@ void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour
         M5.Lcd.setCursor(207, 15);
         M5.Lcd.print("AD5933");
     }
-    //check serial communication
+
+    // Check serial communication
     if (Serial) {
         M5.Lcd.drawRoundRect(5, 50, 150, 45, 15, TFT_GREEN);
         M5.Lcd.setCursor(45, 65);
@@ -354,6 +473,8 @@ void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour
         M5.Lcd.setCursor(45, 65);
         M5.Lcd.print("Serial");
     }
+
+    // Check WiFi status
     if (WiFiClass::status() == WL_CONNECTED) {
         M5.Lcd.drawRoundRect(165, 50, 150, 45, 15, TFT_GREEN);
         M5.Lcd.setCursor(217, 65);
@@ -363,7 +484,8 @@ void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour
         M5.Lcd.setCursor(217, 65);
         M5.Lcd.print("WiFi");
     }
-    //print the date and time
+
+    // Print the date and time
     if(!getLocalTime(&timeInfo)){
         Serial.println("Failed to obtain time");
         M5.Lcd.drawRoundRect(5, 100, 150, 45, 15, TFT_RED);
@@ -381,6 +503,20 @@ void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour
     M5.Lcd.setTextSize(1);
 }
 
+/**
+ * @brief Draws the time screen.
+ *
+ * This function clears the display and prints the current date and time.
+ * If the time cannot be obtained, it prints an error message.
+ * Otherwise, it prints the date and time, and draws arrows for adjusting each component of the date and time.
+ * It also prints a message instructing the user to press the restart button to apply changes.
+ *
+ * @param month The current month.
+ * @param day The current day.
+ * @param year The current year.
+ * @param hour The current hour.
+ * @param minute The current minute.
+ */
 void drawTimeScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour, uint16_t minute){
     M5.Lcd.clearDisplay();
     // print the date and time
@@ -415,6 +551,13 @@ void drawTimeScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour, 
     }
 }
 
+/**
+ * @brief Manages the interface of the application.
+ *
+ * This function updates the M5 stack, gets the touch details and checks if the touch state has changed since the last iteration.
+ * It also manages the navigation between different screens (home, record, configuration, etc.) based on the user's touch input.
+ * It handles the functionality of different screens like recording, configuration, etc.
+ */
 void interfaceGestion(){
     M5.update();
     auto touch = M5.Touch.getDetail();
@@ -510,12 +653,12 @@ void interfaceGestion(){
                 Serial.println("Time elapsed for computeTabImpedance: " + String(end1 - start1) + " ms");
             }
         }
-        // Check if the user clicked on the Cycle icon
+
         if(touch.wasClicked() && touch.x > 30 && touch.x < 90 && touch.y > 140 && touch.y < 200){
             page = 4;
             drawRandomCycleScreen(gesture_repetition, sample_repetition, isGesture);
         }
-        // Check if the user clicked on the gesture list icon
+
         if(touch.wasClicked() && touch.x > 230 && touch.x < 290 && touch.y > 140 && touch.y < 200){
             M5.Lcd.clearDisplay();
             page = 5;
@@ -603,7 +746,7 @@ void interfaceGestion(){
             }
             M5.Lcd.setTextColor(TFT_WHITE);
         }
-        // Check if the user clicked on the WiFi round rect
+        // Check if the user clicked on the Wi-Fi round rect
         if(touch.wasClicked() && touch.x > 165 && touch.x < 315 && touch.y > 70 && touch.y < 95){
             page = 34;
             M5.Lcd.fillRoundRect(0, 30, 320, 160, 15, TFT_WHITE);

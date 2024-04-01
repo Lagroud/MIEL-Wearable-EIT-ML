@@ -3,22 +3,35 @@
 #include "EIT_Interface_Display/EIT_Interface_Display.h"
 #include "EIT_Shared_Values.h"
 
+// Declare and initialize the AD5933 and MCP23008 instances
 AD5933 ad5933;
 MCP23008 MCP(0x20);
+
+// Declare and initialize the variables for the page, gesture repetition, sample repetition, gesture index, and isGesture
 int page;
 int gesture_repetition = 1;
 int sample_repetition = 1;
 int gesture_index;
 boolean isGesture;
+
+// Declare and initialize the variable for the previous touch state
 m5::touch_state_t prev_state;
+
+// Declare and initialize the arrays for the gain and phase values
 double gain[NUM_INCR + 1]; // Array to store the gain values
-int phase[NUM_INCR + 1];
+int phase[NUM_INCR + 1]; // Array to store the phase values
+
+// Declare and initialize the variable for the time information
 struct tm timeInfo;
+
+// Declare and initialize the RTC8563 instance
 m5::RTC8563_Class rtc;
 
+// Declare and initialize the variables for the SSID and password
 const char* ssid = "";
 const char* password = "";
 
+// The setup function runs once when you press reset or power the board
 void setup() {
 
     auto cfg = m5::M5Unified::config();
@@ -58,11 +71,11 @@ void setup() {
 
     // Initialize the AD5933
     if (!(AD5933::reset() &&
-    AD5933::setInternalClock(true) &&
-    AD5933::setStartFrequency(START_FREQ) &&
-    AD5933::setIncrementFrequency(FREQ_INCR) &&
-    AD5933::setNumberIncrements(NUM_INCR) &&
-    AD5933::setPGAGain(PGA_GAIN_X1)))
+          AD5933::setInternalClock(true) &&
+          AD5933::setStartFrequency(START_FREQ) &&
+          AD5933::setIncrementFrequency(FREQ_INCR) &&
+          AD5933::setNumberIncrements(NUM_INCR) &&
+          AD5933::setPGAGain(PGA_GAIN_X1)))
     {
         Serial.println("AD5933 initialization failed");
     }
