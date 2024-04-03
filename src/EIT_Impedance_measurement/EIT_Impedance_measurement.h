@@ -2,7 +2,7 @@
 // Created by tvannier1 on 04/02/2024.
 //
 
-// Include necessary libraries and header files
+
 #include <random>
 #include "EIT_Interface_Display/EIT_Interface_Display.h"
 #include "EIT_Shared_Values.h"

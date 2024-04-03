@@ -55,6 +55,12 @@ void setup() {
     rtc.begin();
 //    rtc.setTime({ 14, 21, 0 });
 //    rtc.setDate({ 2024, 3, 27, 3 });
+    auto month = rtc.getDate().month;
+    auto day = rtc.getDate().date;
+    auto year = rtc.getDate().year;
+    auto hour = rtc.getTime().hours;
+    auto minute = rtc.getTime().minutes;
+
 
     //Initialize communication with the MCP23008
     MCP.begin();
@@ -102,7 +108,7 @@ void setup() {
     initTabImpedance();
     printTabImpedance();
 
-    drawHomeScreen();
+    drawHomeScreen(month, day, year, hour, minute);
 }
 
 void loop() {

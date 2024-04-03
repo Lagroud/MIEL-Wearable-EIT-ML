@@ -114,12 +114,17 @@ void drawRecordIcon(int x, int y) {
  * The home screen consists of three icons: Record, Files, and Config.
  * These icons are drawn by calling their respective functions.
  */
-void drawHomeScreen() {
+void drawHomeScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour, uint16_t minute) {
     M5.Lcd.clearDisplay();
     drawRecordIcon(baseX, baseY);
     drawFilesIcon(baseX - iconSpacing, baseY);
     drawConfigIcon(baseX + iconSpacing, baseY, 20, 8, 10);
 
+    M5.Lcd.setCursor(70, 175);
+    M5.Lcd.setTextSize(2);
+    M5.Lcd.printf("%02d/%02d/%04d %02d:%02d", month, day, year, hour, minute);
+
+    M5.Lcd.setTextSize(1);
     M5.Lcd.setCursor(0, 0);
 }
 
@@ -484,15 +489,16 @@ void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour
         M5.Lcd.setCursor(217, 65);
         M5.Lcd.print("WiFi");
     }
+    M5.Lcd.drawRoundRect(5, 100, 150, 45, 15, TFT_RED);
+    M5.Lcd.setCursor(55, 115);
+    M5.Lcd.print("Time");
+
 
     // Print the date and time
-    if(!getLocalTime(&timeInfo)){
-        Serial.println("Failed to obtain time");
-        M5.Lcd.drawRoundRect(5, 100, 150, 45, 15, TFT_RED);
-        M5.Lcd.setCursor(55, 115);
-        M5.Lcd.print("Time");
-        return;
-    }
+//    if(!getLocalTime(&timeInfo)){
+//        Serial.println("Failed to obtain time");
+//        return;
+//    }
     Serial.printf("%02d %02d %04d %02d:%02d", month, day, year, hour, minute);
     M5.Lcd.drawRoundRect(5, 100, 150, 45, 15, TFT_WHITE);
     M5.Lcd.setCursor(55, 115);
@@ -507,7 +513,6 @@ void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour
  * @brief Draws the time screen.
  *
  * This function clears the display and prints the current date and time.
- * If the time cannot be obtained, it prints an error message.
  * Otherwise, it prints the date and time, and draws arrows for adjusting each component of the date and time.
  * It also prints a message instructing the user to press the restart button to apply changes.
  *
@@ -520,35 +525,28 @@ void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour
 void drawTimeScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour, uint16_t minute){
     M5.Lcd.clearDisplay();
     // print the date and time
-    if(!getLocalTime(&timeInfo)){
-        Serial.println("Failed to obtain time");
-        M5.Lcd.println("Failed to obtain time");
-        return;
-    }else {
+    M5.Lcd.setTextSize(2);
+    M5.Lcd.setCursor(15, 100);
+    M5.Lcd.printf("%02d   %02d   %04d  %02d : %02d", month, day, year, hour, minute);
+    //Month arrows
+    M5.Lcd.fillTriangle(25, 30, 5, 60, 45, 60, TFT_WHITE);
+    M5.Lcd.fillTriangle(25, 180, 5, 150, 45, 150, TFT_WHITE);
+    //Day arrows
+    M5.Lcd.fillTriangle(90, 30, 70, 60, 110, 60, TFT_WHITE);
+    M5.Lcd.fillTriangle(90, 180, 70, 150, 110, 150, TFT_WHITE);
+    //Year arrows
+    M5.Lcd.fillTriangle(155, 30, 135, 60, 175, 60, TFT_WHITE);
+    M5.Lcd.fillTriangle(155, 180, 135, 150, 175, 150, TFT_WHITE);
+    //Hour arrows
+    M5.Lcd.fillTriangle(220, 30, 200, 60, 240, 60, TFT_WHITE);
+    M5.Lcd.fillTriangle(220, 180, 200, 150, 240, 150, TFT_WHITE);
+    //Minute arrows
+    M5.Lcd.fillTriangle(285, 30, 265, 60, 305, 60, TFT_WHITE);
+    M5.Lcd.fillTriangle(285, 180, 265, 150, 305, 150, TFT_WHITE);
 
-        M5.Lcd.setTextSize(2);
-        M5.Lcd.setCursor(15, 100);
-        M5.Lcd.printf("%02d   %02d   %04d  %02d : %02d", month, day, year, hour, minute);
-        //Month arrows
-        M5.Lcd.fillTriangle(25, 30, 5, 60, 45, 60, TFT_WHITE);
-        M5.Lcd.fillTriangle(25, 180, 5, 150, 45, 150, TFT_WHITE);
-        //Day arrows
-        M5.Lcd.fillTriangle(90, 30, 70, 60, 110, 60, TFT_WHITE);
-        M5.Lcd.fillTriangle(90, 180, 70, 150, 110, 150, TFT_WHITE);
-        //Year arrows
-        M5.Lcd.fillTriangle(155, 30, 135, 60, 175, 60, TFT_WHITE);
-        M5.Lcd.fillTriangle(155, 180, 135, 150, 175, 150, TFT_WHITE);
-        //Hour arrows
-        M5.Lcd.fillTriangle(220, 30, 200, 60, 240, 60, TFT_WHITE);
-        M5.Lcd.fillTriangle(220, 180, 200, 150, 240, 150, TFT_WHITE);
-        //Minute arrows
-        M5.Lcd.fillTriangle(285, 30, 265, 60, 305, 60, TFT_WHITE);
-        M5.Lcd.fillTriangle(285, 180, 265, 150, 305, 150, TFT_WHITE);
-
-        M5.Lcd.setTextSize(1);
-        M5.Lcd.setCursor(5, 220);
-        M5.Lcd.print("Press the m5's restart button to apply the changes");
-    }
+    M5.Lcd.setTextSize(1);
+    M5.Lcd.setCursor(5, 220);
+    M5.Lcd.print("Press the m5's restart button to apply the changes");
 }
 
 /**
@@ -576,7 +574,13 @@ void interfaceGestion(){
         if (touch.state == m5::flick_begin && (page == 1 || page == 2 || page == 3)) {
             M5.Lcd.clearDisplay();
             page = 0;
-            drawHomeScreen();
+            auto month = rtc.getDate().month;
+            auto day = rtc.getDate().date;
+            auto year = rtc.getDate().year;
+            auto hour = rtc.getTime().hours;
+            auto minute = rtc.getTime().minutes;
+
+            drawHomeScreen(month, day, year, hour, minute);
         }
             // Check if the user flicked the screen to go back to the record screen
         else if (touch.state == m5::flick_begin && (page == 4 || page == 5)) {

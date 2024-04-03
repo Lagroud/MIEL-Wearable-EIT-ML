@@ -21,8 +21,15 @@ void drawPearLogo();
 
 /**
  * @brief Draws the home screen of the interface.
+ *
+ * @param month The month to be displayed.
+ * @param day The day to be displayed.
+ * @param year The year to be displayed.
+ * @param hour The hour to be displayed.
+ * @param minute The minute to be displayed.
+
  */
-void drawHomeScreen();
+void drawHomeScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour, uint16_t minute);
 
 /**
  * @brief Draws the record screen of the interface.
