@@ -42,7 +42,16 @@ extern double gain[]; // Array to store the gain values
 extern int phase[]; // Array to store the phase values
 
 // Gesture list
-const String gestureList[] = {"CUSTOM", "FIST", "INDEX_PINCH", "LEFT", "RELAX", "RIGHT", "STRETCH", "THUMB_UP"};
+const String gestureList[] = {"CUSTOM",
+                              "FIST",
+                              "INDEX_PINCH",
+                              "LEFT",
+                              "RELAX",
+                              "RIGHT",
+                              "STRETCH",
+                              "THUMB_UP"
+                                // Add your gesture here
+};
 
 extern struct tm timeInfo; // Time information
 extern m5::RTC8563_Class rtc; // RTC8563 instance
