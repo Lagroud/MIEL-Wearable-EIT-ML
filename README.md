@@ -1,3 +1,3 @@
 # IER ...
 
-Voici le [lien](https://tvannier1.github.io/EIRDocumentation/electric-impedance-recorder.html) docmumentation officiel du projet.
+Voici le [lien](https://tvannier1.github.io/MIEL-Wearable-EIT-System-Documentation/) docmumentation officiel du projet.
