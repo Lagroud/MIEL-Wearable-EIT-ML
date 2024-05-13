@@ -28,9 +28,9 @@ struct tm timeInfo;
 m5::RTC8563_Class rtc;
 
 // Declare and initialize the variables for the SSID and password
-const char* ssid = "";
-const char* password = "";
-
+const char* ssid = "SIMPLYY";
+const char* password = "Tq6526-5";
+ 
 // The setup function runs once when you press reset or power the board
 void setup() {
 
@@ -43,12 +43,26 @@ void setup() {
     M5.Lcd.clearDisplay();
 
     // Connect to Wi-Fi network with SSID and password (optional)
-    WiFiClass::begin(ssid, password);
-    if (WiFiClass::status() == WL_CONNECTED) {
+    WiFi.begin(ssid, password);
+    switch (WiFiClass::status())
+    {
+    case WL_CONNECTED:
         Serial.println("Connected to the WiFi network");
-    } else {
-        Serial.println("Failed to connect to the Wi-Fi network");
-
+        break;
+    case WL_NO_SSID_AVAIL:
+        Serial.println("No SSID available");
+        break;
+    case WL_CONNECT_FAILED:
+        Serial.println("Connection failed");
+        break;
+    case WL_IDLE_STATUS:
+        Serial.println("Idle status");
+        break;
+    case WL_DISCONNECTED:
+        Serial.println("Disconnected");
+        break;
+    default:
+        break;
     }
 
     // Set time and date on the RTC8563 module
