@@ -102,11 +102,29 @@ void drawConfigIcon(int x, int y, int radius, int numTeeth, int toothSize) {
  * @param y The y-coordinate of the center of the icon.
  */
 void drawRecordIcon(int x, int y) {
-    M5.Lcd.drawRoundRect(baseX - 30, baseY - 30, 60, 60, 15, TFT_WHITE);
-    M5.Lcd.fillCircle(baseX, baseY, 20, TFT_RED);
-    M5.Lcd.setCursor(baseX - 18, baseY + 35);
+    M5.Lcd.drawRoundRect(x - 30, y - 30, 60, 60, 15, TFT_WHITE);
+    M5.Lcd.fillCircle(x, y, 20, TFT_RED);
+    M5.Lcd.setCursor(x - 18, y + 35);
     M5.Lcd.print("Record");
 }
+
+void drawGestureConfigIcon(int x, int y) {
+    M5.Lcd.fillCircle(x, y, 20, TFT_WHITE);
+    M5.Lcd.drawRoundRect(x  - 30, y - 30, 60, 60, 15, TFT_WHITE);
+    float angleStep = 2 * PI / 8;
+    for (int i = 0; i < 10; ++i) {
+        float angle = i * angleStep;
+        int toothX = x + (20 + 8/4) * cos(angle);
+        int toothY = y + (20 + 8/4) * sin(angle);
+        M5.Lcd.fillRect(toothX - 8 / 2, toothY - 8 / 2, 8, 8, TFT_WHITE);
+        M5.Lcd.fillCircle(x, y, 10, TFT_BLACK);
+    }
+
+    M5.Lcd.setCursor(x - 18, y + 35);
+    M5.Lcd.print("Config");
+}
+
+
 
 /**
  * @brief Clears the display and draws the home screen.
@@ -400,6 +418,31 @@ void drawGestureListScreen(const String& gesture){
 
     // Reset the cursor position
     M5.Lcd.setCursor(0, 0);
+    drawGestureConfigIcon(280, 190);
+}
+
+void drawGestureConfigScreen(){
+    M5.Lcd.clearDisplay();
+    
+    
+    M5.Lcd.drawRoundRect(35, 85, 100, 60, 15, TFT_WHITE);
+    M5.Lcd.fillTriangle(85, 45, 55, 75, 115, 75, TFT_WHITE); 
+    M5.Lcd.fillTriangle(85, 185, 55, 155, 115, 155, TFT_WHITE);
+
+    // write Hauteur in the bottom  left of the screen in big 
+    M5.Lcd.setTextSize(2);
+    M5.Lcd.setCursor(40, 200);
+    M5.Lcd.print("Hauteur");
+    
+    // write Rotation in the bottom right of the screen
+    M5.Lcd.setCursor(190, 200);
+    M5.Lcd.print("Rotation");
+    
+    M5.Lcd.drawRoundRect(185, 85, 100, 60, 15, TFT_WHITE);
+    M5.Lcd.fillTriangle(235, 45, 205, 75, 265, 75, TFT_WHITE);
+    M5.Lcd.fillTriangle(235, 185, 205, 155, 265, 155, TFT_WHITE);
+
+
 }
 
 /**
@@ -597,6 +640,13 @@ void interfaceGestion(){
             auto minute = rtc.getTime().minutes;
             drawConfigScreen(month, day, year, hour, minute);
         }
+        else if (touch.state == m5::flick_begin && page == 6) {
+            M5.Lcd.clearDisplay();
+            page = 5;
+            drawGestureListScreen(gestureList[gesture_index]);
+        }
+        
+        
     }
     M5.Lcd.setCursor(0, 0);
 
@@ -971,5 +1021,12 @@ void interfaceGestion(){
             M5.Lcd.fillRect(0, 82, 320, 65, TFT_BLACK);
             drawGestureListScreen(gestureList[gesture_index]);
         }
+        else if(touch.wasClicked() && touch.x > 280 && touch.x < 310 && touch.y > 160 && touch.y < 220){
+            page = 6;
+            drawGestureConfigScreen();
+        }
+    }
+    if(page == 6){
+
     }
 }
