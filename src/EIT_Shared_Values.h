@@ -60,6 +60,7 @@ const String heightParametersList[] = {"BASSE",
                                    "HAUTE"
                                    // Add your height parameter here
 };
+const int heightParametersLength = 3;
 
 const String rotationParametersList[] = {"0",
                                      "90",
@@ -67,6 +68,7 @@ const String rotationParametersList[] = {"0",
                                      "270"
                                      // Add your rotation parameter here
 };
+const int rotationParametersLength = 4;
 
 extern struct tm timeInfo; // Time information
 extern m5::RTC8563_Class rtc; // RTC8563 instance

@@ -1035,6 +1035,32 @@ void interfaceGestion(){
         }
     }
     if(page == 6){
-
+        if(touch.wasClicked() && touch.x > 50 && touch.x < 115 && touch.y > 45 && touch.y < 75){
+            if(height_index == heightParametersLength - 1){
+                height_index = 0;
+            }else{
+                height_index++;
+            }
+           drawGestureConfigScreen(height_index,rotation_index);
+            
+            
+        }
+        else if(touch.wasClicked() && touch.x > 55 && touch.x < 115 && touch.y > 155 && touch.y < 185){
+            if(height_index == 0){
+                height_index = heightParametersLength - 1;
+            }else{
+                height_index--;
+            }
+            drawGestureConfigScreen(height_index,rotation_index);
+            
+        }
+        else if(touch.wasClicked() && touch.x > 220 && touch.x < 260 && touch.y > 30 && touch.y < 60){
+            rotation_index++;
+           
+        }
+        else if(touch.wasClicked() && touch.x > 220 && touch.x < 260 && touch.y > 150 && touch.y < 180){
+            rotation_index--;
+            
+        }
     }
 }
