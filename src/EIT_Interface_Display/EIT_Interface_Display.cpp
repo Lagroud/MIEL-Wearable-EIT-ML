@@ -421,7 +421,7 @@ void drawGestureListScreen(const String& gesture){
     drawGestureConfigIcon(280, 190);
 }
 
-void drawGestureConfigScreen(){
+void drawGestureConfigScreen(int heightIndex, int rotationIndex){
     M5.Lcd.clearDisplay();
     
     
@@ -429,14 +429,22 @@ void drawGestureConfigScreen(){
     M5.Lcd.fillTriangle(85, 45, 55, 75, 115, 75, TFT_WHITE); 
     M5.Lcd.fillTriangle(85, 185, 55, 155, 115, 155, TFT_WHITE);
 
-    // write Hauteur in the bottom  left of the screen in big 
+   
     M5.Lcd.setTextSize(2);
-    M5.Lcd.setCursor(40, 200);
+    M5.Lcd.setCursor(50, 200);
     M5.Lcd.print("Hauteur");
+    // set cursor to middle of the round rectangle
+    M5.Lcd.setCursor(50, 110);
+    M5.Lcd.setTextSize(2.5);
+    M5.Lcd.print(heightParametersList[heightIndex]);
     
-    // write Rotation in the bottom right of the screen
+    M5.Lcd.setTextSize(2);
     M5.Lcd.setCursor(190, 200);
     M5.Lcd.print("Rotation");
+    // set cursor to middle the round rectangle
+    M5.Lcd.setCursor(230, 105);
+    M5.Lcd.setTextSize(3);
+    M5.Lcd.print(rotationParametersList[rotationIndex]);
     
     M5.Lcd.drawRoundRect(185, 85, 100, 60, 15, TFT_WHITE);
     M5.Lcd.fillTriangle(235, 45, 205, 75, 265, 75, TFT_WHITE);
@@ -1023,7 +1031,7 @@ void interfaceGestion(){
         }
         else if(touch.wasClicked() && touch.x > 280 && touch.x < 310 && touch.y > 160 && touch.y < 220){
             page = 6;
-            drawGestureConfigScreen();
+            drawGestureConfigScreen(height_index,rotation_index);
         }
     }
     if(page == 6){

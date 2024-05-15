@@ -12,6 +12,8 @@ int page;
 int gesture_repetition = 1;
 int sample_repetition = 1;
 int gesture_index;
+int height_index = 0;
+int rotation_index = 0;
 boolean isGesture;
 
 // Declare and initialize the variable for the previous touch state

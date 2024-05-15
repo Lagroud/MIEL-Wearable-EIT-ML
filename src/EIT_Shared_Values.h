@@ -35,6 +35,8 @@ extern int page; // Current page (0: Home, 1: Record, 2: Configuration, 3: Files
 extern int gesture_repetition; // Number of gesture repetitions
 extern int sample_repetition; // Number of sample repetitions
 extern int gesture_index; // Current gesture
+extern int height_index; // Current height parameter
+extern int rotation_index; // Current rotation parameter
 extern boolean isGesture; // Type of repetition (gesture or sample)
 extern m5::touch_state_t prev_state; // Previous touch state
 
@@ -51,6 +53,19 @@ const String gestureList[] = {"CUSTOM",
                               "STRETCH",
                               "THUMB_UP"
                                 // Add your gesture here
+};
+
+const String heightParametersList[] = {"BASSE",
+                                   "INTERMEDIAIRE",
+                                   "HAUTE"
+                                   // Add your height parameter here
+};
+
+const String rotationParametersList[] = {"0",
+                                     "90",
+                                     "180",
+                                     "270"
+                                     // Add your rotation parameter here
 };
 
 extern struct tm timeInfo; // Time information
