@@ -122,16 +122,43 @@ void sendTabImpedance() {
  */
 void impedanceRandomCycle(int _gesture_repetition, int _sample_repetition, MCP23008 _MCP, AD5933 _ad5933, double _gain[]) {
     // Perform impedance measurements for each gesture
+    int size = gestureList.size();
+
     for (int i = 0; i < _gesture_repetition; i++) {
-        for (int j = 0; j < 7; j++) {
+        for (int j = 0; j < size; j++) {
             // Perform impedance measurements for each sample
             for (int k = 0; k < _sample_repetition; k++) {
                 computeTabImpedance(_MCP, _ad5933, _gain);
                 sendTabImpedance();
-                fileCreation(gestureList[j]);
+                AddData(gestureList.at(j));
                 delay(500);
             }
         }
+    }
+}
+
+void InitGestureList(){
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 4; j++) {
+            gestureList.push_back(gestureType + "_" + Params1[i] + "_" + Params2[j]);
+        }
+    }
+}
+
+void InitData() {
+    File file;
+    String FileName = "/SensorData_" + gestureType + ".csv";
+
+    if(!SD.exists(FileName)) {
+        file = SD.open(FileName, FILE_WRITE);
+        for (int i = 0; i < 8; i++) {
+            for (int j = i + 1; j < 8; j++) {
+                file.print("Electrode " + String(i) + "-" + String(j));
+                file.print(";");
+            }
+        }
+        file.println("Gesture");
+        file.close();
     }
 }
 
@@ -139,34 +166,24 @@ void impedanceRandomCycle(int _gesture_repetition, int _sample_repetition, MCP23
  * @brief Creates a file with the given gesture name and writes the tabImpedance matrix to it.
  * @param gesture The gesture name.
  */
-void fileCreation(const String& gesture) {
-    // Create a new file with the current date and time
-    if(!getLocalTime(&timeInfo)){
-        Serial.println("Failed to obtain time");
-        return;
-    }
-    // Create a filename with the current gesture and the current date and time
-    String filename = "/" + gesture + "_" + String(timeInfo.tm_year + 1900) + "-" + String(timeInfo.tm_mon + 1) + "-" + String(timeInfo.tm_mday) + "_" + String(timeInfo.tm_hour) + "-" + String(timeInfo.tm_min) + "-" + String(timeInfo.tm_sec) + ".csv";
-
-    File file = SD.open(filename, FILE_WRITE);
+void AddData(String& gesture) {
+    
+    String FileName = "/SensorData_" + gestureType + ".csv";
+    File file = SD.open(FileName, FILE_APPEND);
+    
     if (!file) {
-        Serial.println("Failed to create file");
+        Serial.println("Failed to access file");
         return;
     }
-    Serial.println("File created on the SD card");
+    Serial.println("data add on the SD card");
 
     // Write the impedance values to the file
     for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
+        for (int j = i + 1; j < 8; j++) {
             file.print(tabImpedance[i][j]);
-            if (j < 7) {
-                file.print(";");
-            }
-            else {
-                file.println();
-            }
+            file.print(";");
         }
     }
-
+    file.println(gesture);
     file.close();
 }
