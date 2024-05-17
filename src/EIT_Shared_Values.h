@@ -36,7 +36,8 @@ extern int page; // Current page (0: Home, 1: Record, 2: Configuration, 3: Files
 extern int gesture_repetition; // Number of gesture repetitions
 extern int sample_repetition; // Number of sample repetitions
 extern int gesture_index; // Current gesture
-extern boolean isGesture; // Type of repetition (gesture or sample)
+extern boolean isGesture;
+extern boolean isReadyForGesture; // Type of repetition (gesture or sample)
 extern m5::touch_state_t prev_state; // Previous touch state
 
 extern double gain[]; // Array to store the gain values

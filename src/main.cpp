@@ -10,9 +10,11 @@ MCP23008 MCP(0x20);
 // Declare and initialize the variables for the page, gesture repetition, sample repetition, gesture index, and isGesture
 int page;
 int gesture_repetition = 1;
-int sample_repetition = 1;
+int sample_repetition = 1; 
 int gesture_index;
 boolean isGesture;
+boolean isReadyForGesture;
+
 
 std::vector<String> gestureList({});
 

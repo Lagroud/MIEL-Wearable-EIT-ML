@@ -6,6 +6,7 @@
 #include "EIT_Interface_Display/EIT_Interface_Display.h"
 #include "EIT_Impedance_measurement/EIT_Impedance_measurement.h"
 #include "EIT_Shared_Values.h"
+#include "EIT_Interface_Display.h"
 
 /**
  * @brief Draws the Pear logo on the M5 LCD screen.
@@ -279,6 +280,7 @@ void sampleRepetitionDisplay(int _sample_repetition){
  * @param _isGesture A boolean value indicating whether the gesture repetition is to be displayed.
  */
 void drawRandomCycleScreen(int _gesture_repetition, int _sample_repetition, boolean _isGesture){
+    page = 4;
     M5.Lcd.clearDisplay();
 
     M5.Lcd.setCursor(108, 63);
@@ -575,7 +577,12 @@ void interfaceGestion(){
             auto hour = rtc.getTime().hours;
             auto minute = rtc.getTime().minutes;
             drawConfigScreen(month, day, year, hour, minute);
+        }else if (touch.state == m5::flick_begin && page == 41) {
+            M5.Lcd.clearDisplay();
+            page = 4;
+            drawRandomCycleScreen(gesture_repetition, sample_repetition, isGesture);
         }
+        
     }
     M5.Lcd.setCursor(0, 0);
 
@@ -918,6 +925,7 @@ void interfaceGestion(){
 
         // Check if the user clicked on the start record icon
         if(touch.wasClicked() && touch.x > 130 && touch.x < 190 && touch.y > 140 && touch.y < 200){
+            page = 41;
             M5.Lcd.clearDisplay();
             M5.Lcd.setCursor(0, 0);
             impedanceRandomCycle(gesture_repetition, sample_repetition, MCP, ad5933, gain);
@@ -946,4 +954,30 @@ void interfaceGestion(){
             drawGestureListScreen(gestureList.at(gesture_index));
         }
     }
+}
+
+void drawCycleInfo(String gesture_name, int timerValue)
+{
+    while (timerValue > 0) {
+        M5.Lcd.clearDisplay();
+        M5.Lcd.setTextSize(3);
+        M5.Lcd.setCursor(60, 60);
+        M5.Lcd.print(gesture_name);
+        M5.Lcd.setTextSize(6);
+        M5.Lcd.setCursor(160, 100);
+        M5.Lcd.print(timerValue);
+        delay(1000);
+        timerValue--;
+    }
+    M5.Lcd.clearDisplay();
+    M5.Lcd.setTextSize(1);
+}
+
+void drawDataRecordScreen()
+{
+    M5.Lcd.clearDisplay();
+    M5.Lcd.setTextSize(2);
+    M5.Lcd.setCursor(40, 100);
+    M5.Lcd.print("Data is being recorded");
+    M5.Lcd.setTextSize(1);
 }
