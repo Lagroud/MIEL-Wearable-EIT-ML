@@ -356,44 +356,23 @@ void countDownDisplay(int countDown){
  *
  * @param gesture The gesture to be displayed.
  */
-void drawGestureListScreen(const String& gesture){
+void drawGestureListScreen(String& gesture){
     // Clear the display
     M5.Lcd.clearDisplay();
 
     // Draw a round rectangle for the gesture list
     // The size and position of the rectangle depend on the length of the gesture name
-    if (gesture != gestureList[2])
-        M5.Lcd.drawRoundRect(50, 85, 220, 60, 15, TFT_WHITE);
-    else
-        M5.Lcd.drawRoundRect(20, 85, 280, 60, 15, TFT_WHITE);
-
+    M5.Lcd.drawRoundRect(50, 85, 220, 60, 15, TFT_WHITE);
+  
     // Draw a triangle pointing up at the top of the round rectangle
     M5.Lcd.fillTriangle(160, 20, 125, 60, 195, 60, TFT_WHITE);
     // Draw a triangle pointing down at the bottom of the round rectangle
     M5.Lcd.fillTriangle(160, 210, 125, 170, 195, 170, TFT_WHITE);
 
-    // Print the gesture name in the round rectangle
-    // The position and size of the text depend on the length of the gesture name
-    if(gesture == gestureList[0]){
-        M5.Lcd.setTextSize(4);
-        M5.Lcd.setCursor(90, 100);
-        M5.Lcd.print(gesture);
-    }
-    else if (gesture == gestureList[1] || gesture == gestureList[3] || gesture == gestureList[4] || gesture == gestureList[5]){
-        M5.Lcd.setTextSize(4);
-        M5.Lcd.setCursor(115, 100);
-        M5.Lcd.print(gesture);
-    }
-    else if (gesture == gestureList[2]){
-        M5.Lcd.setTextSize(4);
-        M5.Lcd.setCursor(30, 100);
-        M5.Lcd.print(gesture);
-    }
-    else if (gesture == gestureList[6] || gesture == gestureList[7]){
-        M5.Lcd.setTextSize(4);
-        M5.Lcd.setCursor(70, 100);
-        M5.Lcd.print(gesture);
-    }
+
+    M5.Lcd.setTextSize(4);
+    M5.Lcd.setCursor(30, 100);
+    M5.Lcd.print(gesture);
 
     // Reset the text size
     M5.Lcd.setTextSize(1);
@@ -636,12 +615,7 @@ void interfaceGestion(){
                 computeTabImpedance(0x20, ad5933, gain);
                 unsigned long end1 = millis();
 
-                if (Serial) {
-                    Serial.println(gestureList[gesture_index]);
-                    sendTabImpedance();
-                    M5.Lcd.println("Data sent for CSV conversion");
-                    Serial.println();
-                } else {
+                if (!Serial) {
                     Serial.println("No serial communication");
                     M5.Lcd.setTextColor(TFT_RED);
                     M5.Lcd.println("No serial communication");
@@ -649,7 +623,7 @@ void interfaceGestion(){
                 }
                 // if there is a sd card
                 if (SD.cardType() != CARD_NONE) {
-                    fileCreation(gestureList[gesture_index]);
+                    AddData(gestureList.at(gesture_index)); // Call the function to retrieve the vector element
                     M5.Lcd.println("File created on the SD card");
                 }
                 unsigned long end = millis();
@@ -666,7 +640,7 @@ void interfaceGestion(){
         if(touch.wasClicked() && touch.x > 230 && touch.x < 290 && touch.y > 140 && touch.y < 200){
             M5.Lcd.clearDisplay();
             page = 5;
-            drawGestureListScreen(gestureList[gesture_index]);
+            drawGestureListScreen(gestureList.at(gesture_index));
         }
     }
     if (page == 3) {
@@ -956,11 +930,11 @@ void interfaceGestion(){
         // Check if the user clicked on the next gesture icon
         if(touch.wasClicked() && touch.x > 125 && touch.x < 195 && touch.y > 20 && touch.y < 60){
             gesture_index++;
-            if (gesture_index > sizeof (gestureList) / sizeof (gestureList[0]) - 1) {
+            if (gesture_index > sizeof (gestureList) / sizeof (gestureList.at(0)) - 1) {
                 gesture_index = 7;
             }
             M5.Lcd.fillRect(0, 82, 320, 65, TFT_BLACK);
-            drawGestureListScreen(gestureList[gesture_index]);
+            drawGestureListScreen(gestureList.at(gesture_index));
         }
             // Check if the user clicked on the previous gesture icon
         else if (touch.wasClicked() && touch.x > 125 && touch.x < 195 && touch.y > 170 && touch.y < 210){
@@ -969,7 +943,7 @@ void interfaceGestion(){
                 gesture_index = 0;
             }
             M5.Lcd.fillRect(0, 82, 320, 65, TFT_BLACK);
-            drawGestureListScreen(gestureList[gesture_index]);
+            drawGestureListScreen(gestureList.at(gesture_index));
         }
     }
 }

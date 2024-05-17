@@ -14,6 +14,8 @@ int sample_repetition = 1;
 int gesture_index;
 boolean isGesture;
 
+std::vector<String> gestureList({});
+
 // Declare and initialize the variable for the previous touch state
 m5::touch_state_t prev_state;
 
@@ -117,6 +119,9 @@ void setup() {
         Serial.println("Card failed, or not present");
         Serial.println();
     }
+
+    InitGestureList();
+    InitData();
 
     // Initialize the tabImpedance matrix with zeros
     initTabImpedance();
