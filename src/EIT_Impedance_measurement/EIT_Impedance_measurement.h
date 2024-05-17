@@ -53,10 +53,13 @@ void sendTabImpedance();
  */
 void impedanceRandomCycle(int _gesture_repetition, int _sample_repetition, MCP23008 _MCP, AD5933 _ad5933, double _gain[]);
 
+void InitGestureList();
+void InitData();
+
 /**
- * @brief Creates a file with the given gesture name.
+ * @brief Add a line to the data file with the gesture name.
  * @param gesture The gesture name.
  */
-void fileCreation(const String& gesture);
+void AddData(String& gesture);
 
 #endif
