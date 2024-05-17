@@ -6,6 +6,7 @@
 #define EIT_PROJECT_DRAWS_H
 
 #include <M5CoreS3.h>
+#include <string.h>
 #include "EIT_Shared_Values.h"
 
 // Base coordinates for drawing on the screen
@@ -89,5 +90,8 @@ void drawGestureListScreen(const String& gesture);
  * @brief Manages the interface of the application.
  */
 void interfaceGestion();
+
+void drawCycleInfo(const String gesture, int timerValue);
+void drawDataRecordScreen();
 
 #endif //EIT_PROJECT_DRAWS_H

@@ -4,6 +4,7 @@
 
 // Include necessary libraries and header files
 #include "EIT_Impedance_measurement/EIT_Impedance_measurement.h"
+#include "EIT_Interface_Display/EIT_Interface_Display.h"
 
 /**
  * @brief Initializes the tabImpedance matrix with zeros.
@@ -123,11 +124,11 @@ void sendTabImpedance() {
 void impedanceRandomCycle(int _gesture_repetition, int _sample_repetition, MCP23008 _MCP, AD5933 _ad5933, double _gain[]) {
     // Perform impedance measurements for each gesture
     int size = gestureList.size();
-
     for (int i = 0; i < _gesture_repetition; i++) {
-        for (int j = 0; j < size; j++) {
-            // Perform impedance measurements for each sample
+        for (int j = 0; j < 7; j++) {
             for (int k = 0; k < _sample_repetition; k++) {
+                drawCycleInfo(gestureList[j], 3);
+                drawDataRecordScreen();
                 computeTabImpedance(_MCP, _ad5933, _gain);
                 sendTabImpedance();
                 AddData(gestureList.at(j));
