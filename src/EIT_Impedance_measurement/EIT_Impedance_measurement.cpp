@@ -125,14 +125,13 @@ void impedanceRandomCycle(int _gesture_repetition, int _sample_repetition, MCP23
     // Perform impedance measurements for each gesture
     int size = gestureList.size();
     for (int i = 0; i < _gesture_repetition; i++) {
-        for (int j = 0; j < 7; j++) {
-            for (int k = 0; k < _sample_repetition; k++) {
-                drawCycleInfo(gestureList[j], 3);
-                drawDataRecordScreen();
+        for (int j = 0; j < size; j++) {
+            drawCycleInfo(gestureList[j], 3);
+            drawDataRecordScreen();
+            for (int k = 0; k < _sample_repetition; k++) {        
                 computeTabImpedance(_MCP, _ad5933, _gain);
-                sendTabImpedance();
                 AddData(gestureList.at(j));
-                delay(500);
+                delay(100);
             }
         }
     }
@@ -176,7 +175,7 @@ void AddData(String& gesture) {
         Serial.println("Failed to access file");
         return;
     }
-    Serial.println("data add on the SD card");
+    //Serial.println("data add on the SD card");
 
     // Write the impedance values to the file
     for (int i = 0; i < 8; i++) {
