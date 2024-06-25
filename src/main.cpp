@@ -12,6 +12,7 @@ int page;
 int gesture_repetition = 1;
 int sample_repetition = 1; 
 int gesture_index;
+int paramType = 1;
 boolean isGesture;
 boolean isReadyForGesture;
 
