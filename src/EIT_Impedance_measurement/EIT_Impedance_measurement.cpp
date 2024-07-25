@@ -135,6 +135,8 @@ void impedanceRandomCycle(int _gesture_repetition, int _sample_repetition, MCP23
             }
         }
     }
+    BLECommunication::getInstance()->sendCsvEndMarker();
+    
 }
 
 void InitGestureList(){
@@ -186,4 +188,14 @@ void AddData(String& gesture) {
     }
     file.println(gesture);
     file.close();
+    if(BLECommunication::getInstance()->isDeviceConnected()){
+        BLECommunication::getInstance()->sendCsvDataToClient(gesture, tabImpedance);
+    }
+   
 }
+
+
+
+
+
+ 
