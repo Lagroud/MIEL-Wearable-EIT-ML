@@ -1,11 +1,22 @@
+/**
+ * @file BLECommunication.cpp
+ * @brief Implémentation de la classe BLECommunication pour la gestion de la communication Bluetooth Low Energy (BLE).
+ */
+
 #include "BLECommunication.h"
 #include "BLEConfig.h"
 #include <WiFi.h>
 
+/**
+ * @brief Instance unique de la classe BLECommunication.
+ */
 BLECommunication *BLECommunication::instance = nullptr;
 
+/**
+ * @brief Constructeur par défaut de la classe BLECommunication.
+ */
 BLECommunication::BLECommunication()
-    : deviceConnected(false), waitingForClientResponse(false), lastNotifyTime(0), notifyInterval(1000), pTxCharacteristic(nullptr), started(false)
+    : deviceConnected(false), pTxCharacteristic(nullptr), started(false)
 {
     NimBLEDevice::init("ESP32_BLE");
     pServer = NimBLEDevice::createServer();
@@ -39,6 +50,10 @@ BLECommunication::BLECommunication()
     Serial.println("BLE server started");
 }
 
+/**
+ * @brief Obtient l'instance unique de la classe BLECommunication.
+ * @return Pointeur vers l'instance unique de la classe BLECommunication.
+ */
 BLECommunication *BLECommunication::getInstance()
 {
     if (instance == nullptr)
@@ -48,35 +63,33 @@ BLECommunication *BLECommunication::getInstance()
     return instance;
 }
 
+/**
+ * @brief Définit la caractéristique de transmission (Tx).
+ * @param characteristic Pointeur vers la caractéristique de transmission.
+ */
 void BLECommunication::setTxCharacteristic(NimBLECharacteristic *characteristic)
 {
     pTxCharacteristic = characteristic;
 }
 
+/**
+ * @brief Obtient la caractéristique de transmission (Tx).
+ * @return Pointeur vers la caractéristique de transmission.
+ */
 NimBLECharacteristic *BLECommunication::getTxCharacteristic() const
 {
     return pTxCharacteristic;
 }
 
-void BLECommunication::sendStringToClient(const std::string &str)
-{
-    if (deviceConnected && pTxCharacteristic)
-    {
-        pTxCharacteristic->setValue(str);
-        pTxCharacteristic->notify();
-        M5.Lcd.println("Sent: " + String(str.c_str()));
-    }
-    else
-    {
-        M5.Lcd.println("No device connected or characteristic not set to send the string");
-    }
-}
-
+/**
+ * @brief Envoie des données CSV au client.
+ * @param str La chaîne de caractères à envoyer.
+ * @param impedanceData Tableau contenant les données d'impédance à envoyer.
+ */
 void BLECommunication::sendCsvDataToClient(const String &str, double impedanceData[8][8])
 {
     if (deviceConnected && pTxCharacteristic)
     {
-        // Construct data line
         String dataLine = "";
         for (int i = 0; i < 8; i++)
         {
@@ -87,8 +100,7 @@ void BLECommunication::sendCsvDataToClient(const String &str, double impedanceDa
             }
         }
         dataLine += str + "\n";
-        // Maximum chunk size for BLE transmission (20 bytes is common, but verify for your device)
-        const int chunkSize = 20;
+        const int chunkSize = 20; // Limitation matérielle protocole BLE 20 bytes par bloc de données
         int dataLength = dataLine.length();
         int offset = 0;
 
@@ -98,18 +110,15 @@ void BLECommunication::sendCsvDataToClient(const String &str, double impedanceDa
             String chunk = dataLine.substring(offset, offset + bytesToSend);
             pTxCharacteristic->setValue(chunk);
             pTxCharacteristic->notify();
-            delay(10); 
+            delay(10);
             offset += bytesToSend;
         }
     }
 }
 
-
-void BLECommunication::sendInitialMessage()
-{
-    sendStringToClient("Welcome to the ESP32 chat!");
-}
-
+/**
+ * @brief Envoie le marqueur de fin de CSV au client.
+ */
 void BLECommunication::sendCsvEndMarker()
 {
     if (deviceConnected && pTxCharacteristic)
@@ -120,26 +129,27 @@ void BLECommunication::sendCsvEndMarker()
     }
 }
 
+/**
+ * @brief Définit l'état de la connexion de l'appareil.
+ * @param connected État de la connexion (true si connecté, false sinon).
+ */
 void BLECommunication::setDeviceConnected(bool connected)
 {
     deviceConnected = connected;
 }
 
+/**
+ * @brief Vérifie si l'appareil est connecté.
+ * @return true si l'appareil est connecté, false sinon.
+ */
 bool BLECommunication::isDeviceConnected() const
 {
     return deviceConnected;
 }
 
-void BLECommunication::setWaitingForClientResponse(bool waiting)
-{
-    waitingForClientResponse = waiting;
-}
-
-bool BLECommunication::isWaitingForClientResponse() const
-{
-    return waitingForClientResponse;
-}
-
+/**
+ * @brief Affiche l'adresse MAC Bluetooth sur le port série.
+ */
 void BLECommunication::serialPrintBLEMacAddress()
 {
     uint8_t baseMac[6];
@@ -150,5 +160,4 @@ void BLECommunication::serialPrintBLEMacAddress()
         Serial.printf("%02X:", baseMac[i]);
     }
     Serial.printf("%02X\n", baseMac[5]);
-    
 }
