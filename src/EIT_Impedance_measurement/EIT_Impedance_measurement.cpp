@@ -134,6 +134,12 @@ void impedanceRandomCycle(int _gesture_repetition, int _sample_repetition, MCP23
                 delay(100);
             }
         }
+        String empty = "empty";
+        drawCycleInfo(empty, 3);
+        drawDataRecordScreen();
+        computeTabImpedance(_MCP, _ad5933, _gain);
+        AddData(empty);
+        delay(100);
     }
 }
 
