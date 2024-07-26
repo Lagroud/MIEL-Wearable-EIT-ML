@@ -1,39 +1,45 @@
+# Bibliothèque BLE
 
-This directory is intended for project header files.
+Ce dossier contient les fichiers d'en-tête nécessaires à la gestion de la communication Bluetooth Low Energy (BLE) pour les appareils utilisant les bibliothèques NimBLE et M5Unified.
 
-A header file is a file containing C declarations and macro definitions
-to be shared between several project source files. You request the use of a
-header file in your project source file (C, C++, etc) located in `src` folder
-by including it, with the C preprocessing directive `#include'.
+## Fichiers d'en-tête
 
-```src/main.c
+### 1. `BLE_COMMUNICATION_H`
 
-#include "header.h"
+- **Description :** Déclare la classe singleton `BLECommunication` qui gère la communication BLE, y compris l'envoi et la réception de données, ainsi que la gestion de la connexion des appareils.
+- **Classes :**
+  - `BLECommunication`
+- **Principales Méthodes :**
+  - `void setTxCharacteristic(NimBLECharacteristic *characteristic)`
+  - `NimBLECharacteristic *getTxCharacteristic() const`
+  - `void sendCsvDataToClient(const String &str, double impedanceData[8][8])`
+  - `void sendCsvEndMarker()`
+  - `void setDeviceConnected(bool connected)`
+  - `bool isDeviceConnected() const`
+  - `void serialPrintBLEMacAddress()`
+  - `static BLECommunication *getInstance()`
 
-int main (void)
-{
- ...
-}
-```
+### 2. `BLE_CONFIG_H`
 
-Including a header file produces the same results as copying the header file
-into each source file that needs it. Such copying would be time-consuming
-and error-prone. With a header file, the related declarations appear
-in only one place. If they need to be changed, they can be changed in one
-place, and programs that include the header file will automatically use the
-new version when next recompiled. The header file eliminates the labor of
-finding and changing all the copies as well as the risk that a failure to
-find one copy will result in inconsistencies within a program.
+- **Description :** Définit les UUIDs pour le service BLE et les caractéristiques de transmission (Tx) et de réception (Rx).
+- **Macros :**
+  - `UUID_SERVICE`
+  - `UUID_TX`
+  - `UUID_RX`
 
-In C, the usual convention is to give header files names that end with `.h'.
-It is most portable to use only letters, digits, dashes, and underscores in
-header file names, and at most one dot.
 
-Read more about using header files in official GCC documentation:
+### 3. `BLE_SERVER_CALLBACKS_H`
 
-* Include Syntax
-* Include Operation
-* Once-Only Headers
-* Computed Includes
+- **Description :** Déclare la classe `MyBLEServerCallbacks` pour gérer les callbacks du serveur BLE.
+- **Classes :**
+  - `MyBLEServerCallbacks`
+- **Principales Méthodes :**
+  - `void onConnect(NimBLEServer* pServer) override`
+  - `void onDisconnect(NimBLEServer* pServer) override`
 
-https://gcc.gnu.org/onlinedocs/cpp/Header-Files.html
+## Instructions
+
+1. **Inclusion des fichiers d'en-tête :**
+   Assurez-vous d'inclure les fichiers nécessaires dans votre projet en utilisant les directives `#include` appropriées.
+   ```cpp
+   #include "BLECommunication.h"
