@@ -188,15 +188,20 @@ void InitData() {
  * @param gesture The gesture name.
  */
 void AddData(String& gesture) {
-    
-    String FileName = "/SensorData_" + gestureType + ".csv";
+    String FileName = "/SensorData_" + gesture + ".csv";
     File file = SD.open(FileName, FILE_APPEND);
-    
+
     if (!file) {
-        Serial.println("Failed to access file");
+        Serial.println("Failed to access file, attempting Bluetooth communication only");
+
+        // Attempt Bluetooth communication
+        if(BLECommunication::getInstance()->isDeviceConnected()){
+            BLECommunication::getInstance()->sendCsvDataToClient(gesture, tabImpedance);
+        }
         return;
     }
-    //Serial.println("data add on the SD card");
+    // If the file is successfully opened, proceed with SD card operations
+    Serial.println("Data add on the SD card");
 
     // Write the impedance values to the file
     for (int i = 0; i < 8; i++) {
@@ -207,11 +212,13 @@ void AddData(String& gesture) {
     }
     file.println(gesture);
     file.close();
+
+    // After SD card operation, proceed with Bluetooth communication
     if(BLECommunication::getInstance()->isDeviceConnected()){
         BLECommunication::getInstance()->sendCsvDataToClient(gesture, tabImpedance);
     }
-   
 }
+
 
 
 
