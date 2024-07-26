@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include "EIT_Impedance_measurement/EIT_Impedance_measurement.h"
-#include "EIT_Interface_Display/EIT_Interface_Display.h"
+#include "EIT_Impedance_measurement.h"
+#include "EIT_Interface_Display.h"
 #include "EIT_Shared_Values.h"
 
 // Declare and initialize the AD5933 and MCP23008 instances

@@ -9,6 +9,7 @@
 #include <NimBLEDevice.h>
 #include <M5Unified.h>
 
+
 /**
  * @class MyBLEServerCallbacks
  * @brief Classe pour gérer les callbacks du serveur BLE.

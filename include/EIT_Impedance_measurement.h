@@ -4,7 +4,7 @@
 
 
 #include <random>
-#include "EIT_Interface_Display/EIT_Interface_Display.h"
+#include "EIT_Interface_Display.h"
 #include "EIT_Shared_Values.h"
 #include "BLECommunication.h"
 

@@ -5,6 +5,8 @@
 
 #include "BLEServerCallbacks.h"
 #include "BLECommunication.h"
+#include "EIT_Interface_Display.h"
+
 
 /**
  * @brief Méthode appelée lorsqu'un appareil se connecte au serveur BLE.
@@ -12,6 +14,9 @@
  */
 void MyBLEServerCallbacks::onConnect(NimBLEServer* pServer) {
     BLECommunication::getInstance()->setDeviceConnected(true);
+    if(page == 3){
+        //drawConfigScreen(rtc.getDate().month, rtc.getDate().date, rtc.getDate().year, rtc.getTime().hours, rtc.getTime().minutes);
+    }
     Serial.println("Device connected");
 }
 

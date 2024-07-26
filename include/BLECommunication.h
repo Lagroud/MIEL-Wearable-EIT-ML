@@ -36,6 +36,9 @@ public:
      */
     BLECommunication();
     
+    void startBLEServer();
+
+    void stopBLEServer();
     
     /**
      * @brief Envoie des données CSV au client.
@@ -60,6 +63,12 @@ public:
      * @return true si l'appareil est connecté, false sinon.
      */
     bool isDeviceConnected() const;
+
+    /**
+     * @brief Vérifie si le serveur BLE est démarré.
+     * @return true si le serveur est démarré, false sinon.
+     */
+    bool isStarted() const;
 
 
     /**

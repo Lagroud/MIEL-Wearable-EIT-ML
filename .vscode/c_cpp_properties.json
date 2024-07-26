@@ -1,8 +1,3 @@
-//
-// !!! WARNING !!! AUTO-GENERATED FILE!
-// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
-// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
-//
 {
     "configurations": [
         {
@@ -283,7 +278,8 @@
                 "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
                 "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
                 "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
-                ""
+                "",
+                "${workspaceFolder}/src/EIT_Interface_Display"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,

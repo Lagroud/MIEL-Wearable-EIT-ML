@@ -16,7 +16,9 @@ BLECommunication *BLECommunication::instance = nullptr;
  * @brief Constructeur par défaut de la classe BLECommunication.
  */
 BLECommunication::BLECommunication()
-    : deviceConnected(false), pTxCharacteristic(nullptr), started(false)
+    : deviceConnected(false), pTxCharacteristic(nullptr), started(false){}
+
+void BLECommunication::startBLEServer()
 {
     NimBLEDevice::init("ESP32_BLE");
     pServer = NimBLEDevice::createServer();
@@ -47,7 +49,25 @@ BLECommunication::BLECommunication()
 
     pService->start();
     started = pServer->getAdvertising()->start();
-    Serial.println("BLE server started");
+    if(started){
+        Serial.println("BLE server started");
+    }else{
+        Serial.println("Failed to start BLE server");
+    }
+}
+
+void BLECommunication::stopBLEServer()
+{
+    if (pServer)
+    {
+        pServer->getAdvertising()->stop();
+        pServer->removeService(pServer->getServiceByUUID(UUID_SERVICE));
+        NimBLEDevice::deleteAllBonds();
+        pServer = nullptr;
+        started = false;
+        deviceConnected = false;
+        Serial.println("BLE server stopped : " + String(started));
+    }
 }
 
 /**
@@ -80,6 +100,13 @@ NimBLECharacteristic *BLECommunication::getTxCharacteristic() const
 {
     return pTxCharacteristic;
 }
+
+bool BLECommunication::isStarted() const
+{
+    return started;
+}
+
+
 
 /**
  * @brief Envoie des données CSV au client.

@@ -3,8 +3,8 @@
 //
 
 // Include necessary libraries and header files
-#include "EIT_Interface_Display/EIT_Interface_Display.h"
-#include "EIT_Impedance_measurement/EIT_Impedance_measurement.h"
+#include "EIT_Interface_Display.h"
+#include "EIT_Impedance_measurement.h"
 #include "EIT_Shared_Values.h"
 #include "EIT_Interface_Display.h"
 
@@ -472,18 +472,22 @@ void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour
         M5.Lcd.setCursor(217, 65);
         M5.Lcd.print("WiFi");
     }
-
-    if (BLECommunication::getInstance()->isDeviceConnected()) {
-        M5.Lcd.drawRoundRect(165, 100, 150, 45, 15, TFT_GREEN);
+    // Check BLE status
+    if(!BLECommunication::getInstance()->isStarted()){
+        M5.Lcd.drawRoundRect(165, 100, 150, 45, 15, LIGHTGREY);
         M5.Lcd.setCursor(217, 115);
         M5.Lcd.print("BLE");
-    } else {
+    } 
+    else if (BLECommunication::getInstance()->isStarted()) {
         M5.Lcd.drawRoundRect(165, 100, 150, 45, 15, TFT_RED);
         M5.Lcd.setCursor(217, 115);
         M5.Lcd.print("BLE");
     }
-    // serial print the esp32 ble mac address
-    BLECommunication::getInstance()->serialPrintBLEMacAddress();
+    if (BLECommunication::getInstance()->isDeviceConnected()) {
+        M5.Lcd.drawRoundRect(165, 100, 150, 45, 15, TFT_GREEN);
+        M5.Lcd.setCursor(217, 115);
+        M5.Lcd.print("BLE");
+    }
 
     M5.Lcd.drawRoundRect(5, 100, 150, 45, 15, TFT_RED);
     M5.Lcd.setCursor(55, 115);
@@ -765,6 +769,18 @@ void interfaceGestion(){
             }
             M5.Lcd.setTextColor(TFT_WHITE);
         }
+        if(touch.wasClicked() && touch.x > 165 && touch.x < 315 && touch.y > 100 && touch.y< 145 ){
+            if(!BLECommunication::getInstance()->isStarted()){
+                BLECommunication::getInstance()->startBLEServer();
+                drawConfigScreen(rtc.getDate().month, rtc.getDate().date, rtc.getDate().year, rtc.getTime().hours, rtc.getTime().minutes);
+            }else{
+                BLECommunication::getInstance()->stopBLEServer();
+                drawConfigScreen(rtc.getDate().month, rtc.getDate().date, rtc.getDate().year, rtc.getTime().hours, rtc.getTime().minutes);
+                
+            }
+            
+        }
+
         // Check if the user clicked on the Time round rect
         if(touch.wasClicked() && touch.x > 5 && touch.x < 155 && touch.y > 100 && touch.y < 145){
             page = 35;
@@ -972,6 +988,8 @@ void interfaceGestion(){
         }
     }
 }
+
+
 
 void drawCycleInfo(String gesture_name, int timerValue)
 {
