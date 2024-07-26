@@ -134,17 +134,36 @@ void impedanceRandomCycle(int _gesture_repetition, int _sample_repetition, MCP23
                 delay(100);
             }
         }
+        String empty = "empty";
+        drawCycleInfo(empty, 3);
+        drawDataRecordScreen();
+        computeTabImpedance(_MCP, _ad5933, _gain);
+        AddData(empty);
+        delay(100);
     }
     BLECommunication::getInstance()->sendCsvEndMarker();
     
 }
 
 void InitGestureList(){
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 4; j++) {
-            gestureList.push_back(gestureType + "_" + Params1[i] + "_" + Params2[j]);
+    switch (paramType)
+    {
+    case 0:
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 4; j++) {
+                gestureList.push_back(gestureType + "_" + Params1[i] + "_" + Params2[j]);
+            }
         }
+        break;
+    case 1:
+         for (int i = 0; i < 8; i++) {       
+            gestureList.push_back(gestureType + "_" + i);           
+        }
+        break;
+    default:
+        break;
     }
+    
 }
 
 void InitData() {

@@ -44,12 +44,14 @@ extern m5::touch_state_t prev_state; // Previous touch state
 extern double gain[]; // Array to store the gain values
 extern int phase[]; // Array to store the phase values
 
-const String gestureType = "Grip";
+const String gestureType = "Press";
 // vector Gesture list
 extern std::vector<String> gestureList;
 
 const String Params1[3] = {"Bas", "Milieu", "Haut"};
 const String Params2[4] = {"0", "90", "180", "270"};
+
+extern int paramType;
 
 extern struct tm timeInfo; // Time information
 extern m5::RTC8563_Class rtc; // RTC8563 instance
