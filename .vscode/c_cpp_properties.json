@@ -10,7 +10,6 @@
             "includePath": [
                 "E:/UQAC/MIEL-Wearable-EIT-ML/include",
                 "E:/UQAC/MIEL-Wearable-EIT-ML/src",
-                "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
                 "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/SD/src",
                 "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/FS/src",
                 "E:/UQAC/MIEL-Wearable-EIT-ML/lib/MCP23008",
@@ -20,6 +19,8 @@
                 "E:/UQAC/MIEL-Wearable-EIT-ML/lib/M5GFX/src",
                 "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                 "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
+                "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
+                "E:/UQAC/MIEL-Wearable-EIT-ML/.pio/libdeps/m5stack-cores3/NimBLE-Arduino/src",
                 "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/newlib/platform_include",
                 "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/freertos/include",
                 "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/freertos/include/esp_additions/freertos",
@@ -289,7 +290,6 @@
                 "path": [
                     "E:/UQAC/MIEL-Wearable-EIT-ML/include",
                     "E:/UQAC/MIEL-Wearable-EIT-ML/src",
-                    "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
                     "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/SD/src",
                     "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/FS/src",
                     "E:/UQAC/MIEL-Wearable-EIT-ML/lib/MCP23008",
@@ -299,6 +299,8 @@
                     "E:/UQAC/MIEL-Wearable-EIT-ML/lib/M5GFX/src",
                     "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                     "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/SPI/src",
+                    "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
+                    "E:/UQAC/MIEL-Wearable-EIT-ML/.pio/libdeps/m5stack-cores3/NimBLE-Arduino/src",
                     "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/newlib/platform_include",
                     "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/freertos/include",
                     "C:/Users/valet/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/include/freertos/include/esp_additions/freertos",

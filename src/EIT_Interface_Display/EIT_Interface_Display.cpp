@@ -422,6 +422,8 @@ void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour
         M5.Lcd.print("MCP23008");
     }
 
+    
+
     // Initialize and calibrate AD5933
     if (!(AD5933::reset() &&
           AD5933::setInternalClock(true) &&
@@ -470,9 +472,24 @@ void drawConfigScreen(uint16_t month, uint16_t day, uint16_t year, uint16_t hour
         M5.Lcd.setCursor(217, 65);
         M5.Lcd.print("WiFi");
     }
+
+    if (BLECommunication::getInstance()->isDeviceConnected()) {
+        M5.Lcd.drawRoundRect(165, 100, 150, 45, 15, TFT_GREEN);
+        M5.Lcd.setCursor(217, 115);
+        M5.Lcd.print("BLE");
+    } else {
+        M5.Lcd.drawRoundRect(165, 100, 150, 45, 15, TFT_RED);
+        M5.Lcd.setCursor(217, 115);
+        M5.Lcd.print("BLE");
+    }
+    // serial print the esp32 ble mac address
+    BLECommunication::getInstance()->serialPrintBLEMacAddress();
+
     M5.Lcd.drawRoundRect(5, 100, 150, 45, 15, TFT_RED);
     M5.Lcd.setCursor(55, 115);
     M5.Lcd.print("Time");
+
+   
 
 
     // Print the date and time
